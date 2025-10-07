@@ -27,7 +27,7 @@ import Image from "next/image"
 
 const heroImages = [
   {
-    src: "/images/hero-1.png",
+    src: "/images/image.png",
     alt: "Students studying in modern library",
     title: "Excellence in Learning",
     subtitle: "State-of-the-art facilities for academic success",

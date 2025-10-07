@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   BookOpen,
   GraduationCap,
@@ -18,7 +19,7 @@ import {
   UserCheck,
   Monitor,
   Menu,
-} from "lucide-react"
+} from "lucide-react";
 
 const menuItems = [
   {
@@ -81,17 +82,21 @@ const menuItems = [
     icon: Newspaper,
     available: true,
   },
-]
+];
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const isActive = (url: string) => {
     if (url === "/") {
-      return pathname === "/"
+      return pathname === "/";
     }
-    return pathname.startsWith(url)
+    return pathname.startsWith(url);
+  };
+
+  if (pathname.startsWith("/admin")) {
+    return null; // Don't render the navbar on admin pages
   }
 
   return (
@@ -100,27 +105,33 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-800 rounded-lg flex items-center justify-center">
-              <BookOpen className="h-6 w-6 text-white" />
-            </div>
-            <div className="hidden sm:block">
-              <div className="text-lg font-bold text-gray-900">Highland College</div>
-              <div className="text-sm text-gray-600">of Technology</div>
-            </div>
+            {/* Replace icon box with your logo */}
+            <Image
+              src="/images/hct-logo.png" // ✅ put logo inside `public/` folder
+              alt="Highland College Logo"
+              width={70}
+              height={70}
+              className="rounded-lg"
+              priority
+            />
+            {/* <div className="text-lg font-bold text-gray-900">Highland College</div>
+            <div className="text-sm text-gray-600">of Technology</div> */}
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
             {menuItems.map((item) => {
-              const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-colors relative"
-              let itemClasses = baseClasses
+              const baseClasses =
+                "px-3 py-2 rounded-md text-sm font-medium transition-colors relative";
+              let itemClasses = baseClasses;
 
               if (!item.available) {
-                itemClasses += " text-gray-400 cursor-not-allowed"
+                itemClasses += " text-gray-400 cursor-not-allowed";
               } else if (isActive(item.url)) {
-                itemClasses += " text-red-800 bg-red-50"
+                itemClasses += " text-red-800 bg-red-50";
               } else {
-                itemClasses += " text-gray-700 hover:text-red-800 hover:bg-gray-50"
+                itemClasses +=
+                  " text-gray-700 hover:text-red-800 hover:bg-gray-50";
               }
 
               return (
@@ -131,12 +142,14 @@ export function Navbar() {
                   onClick={(e) => !item.available && e.preventDefault()}
                 >
                   {item.title}
-                  {!item.available && <span className="ml-1 text-xs text-gray-400">(Soon)</span>}
+                  {!item.available && (
+                    <span className="ml-1 text-xs text-gray-400">(Soon)</span>
+                  )}
                   {item.available && isActive(item.url) && (
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-800 rounded-full" />
                   )}
                 </Link>
-              )
+              );
             })}
           </div>
 
@@ -156,7 +169,9 @@ export function Navbar() {
                       <BookOpen className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900">Highland College</div>
+                      <div className="text-lg font-bold text-gray-900">
+                        Highland College
+                      </div>
                       <div className="text-sm text-gray-600">of Technology</div>
                     </div>
                   </div>
@@ -165,15 +180,16 @@ export function Navbar() {
                 <div className="flex flex-col space-y-2">
                   {menuItems.map((item) => {
                     const baseClasses =
-                      "flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors"
-                    let itemClasses = baseClasses
+                      "flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors";
+                    let itemClasses = baseClasses;
 
                     if (!item.available) {
-                      itemClasses += " text-gray-400 cursor-not-allowed"
+                      itemClasses += " text-gray-400 cursor-not-allowed";
                     } else if (isActive(item.url)) {
-                      itemClasses += " text-red-800 bg-red-50"
+                      itemClasses += " text-red-800 bg-red-50";
                     } else {
-                      itemClasses += " text-gray-700 hover:text-red-800 hover:bg-gray-50"
+                      itemClasses +=
+                        " text-gray-700 hover:text-red-800 hover:bg-gray-50";
                     }
 
                     return (
@@ -183,17 +199,21 @@ export function Navbar() {
                         className={itemClasses}
                         onClick={(e) => {
                           if (!item.available) {
-                            e.preventDefault()
+                            e.preventDefault();
                           } else {
-                            setIsOpen(false)
+                            setIsOpen(false);
                           }
                         }}
                       >
                         <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
-                        {!item.available && <span className="ml-auto text-xs text-gray-400">(Coming Soon)</span>}
+                        {!item.available && (
+                          <span className="ml-auto text-xs text-gray-400">
+                            (Coming Soon)
+                          </span>
+                        )}
                       </Link>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -202,5 +222,5 @@ export function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }

@@ -1,106 +1,298 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User } from "lucide-react"
-
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import {
+  MessageCircle,
+  Send,
+  X,
+  Minimize2,
+  Maximize2,
+  Bot,
+  User,
+} from "lucide-react";
+import Markdown from 'react-markdown'
 interface Message {
-  id: string
-  content: string
-  sender: "user" | "bot"
-  timestamp: Date
+  id: string;
+  content: string;
+  sender: "user" | "bot";
+  timestamp: Date;
+  isStreaming?: boolean;
 }
 
+interface ChatSession {
+  id: string;
+  title: string;
+}
+
+// Configuration
+const API_CONFIG = {
+  baseUrl: "https://highland-chatbot.onrender.com/api/v1",
+  apiKey:
+    "b4c67848e88194eba8c16b3b75ba7c0f76229a0710c57faa78bdc3545f266beb0d19801248507bcf4975e118487411d936f3592dc4915ec482e7084be2b1778f",
+};
+
 export function Chatbot() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [chatSession, setChatSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hello! I'm HCT, your virtual assistant for Highland College of Technology. How can I help you today?",
+      content:
+        "Hello! I'm HCT, your virtual assistant for Highland College of Technology. How can I help you today?",
       sender: "bot",
       timestamp: new Date(),
     },
-  ])
-  const [inputValue, setInputValue] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return
+  // Create a new chat session
+  const createChatSession = async (): Promise<ChatSession | null> => {
+    try {
+      const response = await fetch(`${API_CONFIG.baseUrl}/chat/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_CONFIG.apiKey,
+        },
+        body: JSON.stringify({
+          title: "Highland College Chat",
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const { data } = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Failed to create chat session:", error);
+      setError("Failed to create chat session. Please try again.");
+      return null;
+    }
+  };
+
+  // Handle streaming response
+  const handleStreamingResponse = async (
+    chatId: string,
+    content: string
+  ): Promise<void> => {
+    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content,
       sender: "user",
       timestamp: new Date(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setInputValue("")
-    setIsTyping(true)
+    setMessages((prev) => [...prev, userMessage]);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: getBotResponse(inputValue),
-        sender: "bot",
-        timestamp: new Date(),
+    // Create bot message placeholder
+    const botMessageId = (Date.now() + 1).toString();
+    const botMessage: Message = {
+      id: botMessageId,
+      content: "",
+      sender: "bot",
+      timestamp: new Date(),
+      isStreaming: true,
+    };
+
+    setMessages((prev) => [...prev, botMessage]);
+
+    try {
+      // Create abort controller for this request
+      setIsThinking(true);
+      abortControllerRef.current = new AbortController();
+
+      const response = await fetch(
+        `${API_CONFIG.baseUrl}/chat/${chatId}?stream=true`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": API_CONFIG.apiKey,
+          },
+          body: JSON.stringify({ content }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setMessages((prev) => [...prev, botMessage])
-      setIsTyping(false)
-    }, 1500)
-  }
 
-  const getBotResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase()
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Failed to get response reader");
+      }
 
-    if (input.includes("admission") || input.includes("apply")) {
-      return "For admission information, you need 5 credits in your O'level or JAMB cut off mark of 160. We offer National Diploma programs in Computer Science, Information Technology, Software Engineering, Data Science, Cybersecurity, and Web Development. Would you like more details about any specific program?"
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let newMessageId = "";
+      let currentResponse = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+
+          // Decode the chunk and add to buffer
+          buffer += decoder.decode(value, { stream: true });
+
+          // Process complete lines
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (line.trim() === "") continue;
+
+            try {
+              // Parse the JSON chunk
+              const formatedJson = line.slice(6);
+              const chunk = JSON.parse(formatedJson);
+              console.log(chunk);
+
+              if (chunk.messageId) {
+                // Update message ID if provided
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === botMessageId
+                      ? { ...msg, id: chunk.messageId }
+                      : msg
+                  )
+                );
+                newMessageId = chunk.messageId;
+              } else if (chunk.chunk) {
+                // Append content chunk
+                setIsThinking(false);
+                currentResponse += chunk.chunk;
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === botMessageId || msg.id === newMessageId
+                      ? {
+                          ...msg,
+                          content: currentResponse,
+                          isStreaming: false,
+                        }
+                      : msg
+                  )
+                );
+              } else if (chunk.done === true) {
+                // Mark streaming as complete
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === botMessageId || msg.id === chunk.messageId
+                      ? { ...msg, isStreaming: false }
+                      : msg
+                  )
+                );
+                break;
+              }
+            } catch (parseError) {
+              console.warn("Failed to parse chunk:", line, parseError);
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("Request aborted");
+        return;
+      }
+
+      console.error("Streaming error:", error);
+
+      // Update the bot message with error
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === botMessageId
+            ? {
+                ...msg,
+                content:
+                  "I apologize, but I'm experiencing technical difficulties. Please try again later.",
+                isStreaming: false,
+              }
+            : msg
+        )
+      );
+
+      setError("Failed to get response. Please try again.");
+    } finally {
+      abortControllerRef.current = null;
+      setIsThinking(false);
     }
+  };
 
-    if (input.includes("tuition") || input.includes("fee") || input.includes("cost")) {
-      return "Our tuition fees are: ND1 (First Year) - ₦180,000, ND2 (Second Year) - ₦170,000, plus a registration fee of ₦15,000. We also offer flexible payment options. Would you like information about scholarships or payment plans?"
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    setError(null);
+    setIsLoading(true);
+    const messageContent = inputValue;
+    setInputValue("");
+
+    try {
+      // Create chat session if it doesn't exist
+      let currentSession = chatSession;
+      if (!currentSession) {
+        currentSession = await createChatSession();
+        if (!currentSession) {
+          setIsLoading(false);
+          return;
+        }
+        setChatSession(currentSession);
+      }
+
+      await handleStreamingResponse(currentSession.id, messageContent);
+    } catch (error) {
+      console.error("Send message error:", error);
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    if (input.includes("program") || input.includes("course")) {
-      return "We offer 6 National Diploma programs: Computer Science, Information Technology, Software Engineering, Data Science, Cybersecurity, and Web Development. Each program is 2 years duration. Which program interests you most?"
-    }
-
-    if (input.includes("contact") || input.includes("location") || input.includes("address")) {
-      return "Highland College of Technology is located at Adjacent Dominican Community, Off UI/Sango Road, Education Zone, Samonda. You can reach us at (+234) 708 514 2576, (+234) 805 350 7454, or (+234) 708 007 3489. Email: segun@highlandtech.edu.ng"
-    }
-
-    if (input.includes("calendar") || input.includes("semester") || input.includes("session")) {
-      return "Our academic calendar: First Semester (Sept - Dec 2024), Second Semester (Jan - May 2025). Registration is from Aug 15 - Sept 5, and examinations are from Nov 20 - Dec 15. Need more specific dates?"
-    }
-
-    return "I'd be happy to help you with information about Highland College of Technology! You can ask me about admissions, programs, tuition fees, academic calendar, contact information, or any other questions about our college."
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  }
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   if (!isOpen) {
     return (
@@ -113,7 +305,7 @@ export function Chatbot() {
           <MessageCircle className="h-6 w-6" />
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -131,7 +323,9 @@ export function Chatbot() {
             </div>
             <div>
               <h3 className="font-semibold text-sm">HCT</h3>
-              <p className="text-xs text-red-100">Online now</p>
+              <p className="text-xs text-red-100">
+                {chatSession ? "Connected" : "Connecting..."}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -141,7 +335,11 @@ export function Chatbot() {
               onClick={() => setIsMinimized(!isMinimized)}
               className="text-white hover:bg-red-900 h-8 w-8 p-0"
             >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+              {isMinimized ? (
+                <Maximize2 className="h-4 w-4" />
+              ) : (
+                <Minimize2 className="h-4 w-4" />
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -156,49 +354,81 @@ export function Chatbot() {
 
         {!isMinimized && (
           <>
+            {/* Error Display */}
+            {error && (
+              <div className="p-2 bg-red-100 border-b border-red-200">
+                <p className="text-sm text-red-700">{error}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setError(null)}
+                  className="mt-1 h-6 text-xs text-red-700 hover:bg-red-200"
+                >
+                  Dismiss
+                </Button>
+              </div>
+            )}
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 h-80">
               {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
                     className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                      message.sender === "user" ? "bg-red-800 text-white" : "bg-gray-100 text-gray-900"
+                      message.sender === "user"
+                        ? "bg-red-800 text-white"
+                        : "bg-gray-100 text-gray-900"
                     }`}
                   >
                     <div className="flex items-start gap-2">
-                      {message.sender === "bot" && <Bot className="h-4 w-4 mt-0.5 text-red-800" />}
-                      {message.sender === "user" && <User className="h-4 w-4 mt-0.5 text-red-100" />}
+                      {message.sender === "bot" && (
+                        <div className="flex items-center">
+                          <Bot className="h-4 w-4 mt-0.5 text-red-800" />
+                          {message.isStreaming && isThinking && (
+                            <div className="ml-1 flex space-x-1">
+                              <div className="w-1 h-1 bg-red-800 rounded-full animate-bounce"></div>
+                              <div
+                                className="w-1 h-1 bg-red-800 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.1s" }}
+                              ></div>
+                              <div
+                                className="w-1 h-1 bg-red-800 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.2s" }}
+                              ></div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {message.sender === "user" && (
+                        <User className="h-4 w-4 mt-0.5 text-red-100" />
+                      )}
                       <div className="flex-1">
-                        <p className="text-sm">{message.content}</p>
-                        <p className={`text-xs mt-1 ${message.sender === "user" ? "text-red-100" : "text-gray-500"}`}>
-                          {formatTime(message.timestamp)}
+                        <p className="text-sm whitespace-pre-wrap">
+                          <Markdown>
+                            {message.content}
+                          </Markdown>
                         </p>
+                        {!message.isStreaming && (
+                          <p
+                            className={`text-xs mt-1 ${
+                              message.sender === "user"
+                                ? "text-red-100"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {formatTime(message.timestamp)}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 rounded-lg px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-4 w-4 text-red-800" />
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
               <div ref={messagesEndRef} />
             </div>
 
@@ -211,11 +441,11 @@ export function Chatbot() {
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me about Highland College..."
                   className="flex-1"
-                  disabled={isTyping}
+                  disabled={isLoading}
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isTyping}
+                  disabled={!inputValue.trim() || isLoading}
                   className="bg-red-800 hover:bg-red-900"
                   size="sm"
                 >
@@ -223,12 +453,14 @@ export function Chatbot() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Ask about admissions, programs, fees, or campus info
+                {chatSession
+                  ? "Ask about admissions, programs, fees, or campus info"
+                  : "Connecting to chat service..."}
               </p>
             </div>
           </>
         )}
       </Card>
     </div>
-  )
+  );
 }
