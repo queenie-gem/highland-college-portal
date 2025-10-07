@@ -10,7 +10,7 @@ import {
   Building2,
   UserCheck,
   Monitor,
-} from "lucide-react"
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,8 +21,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "../components/ui/sidebar"
-import Link from "next/link"
+} from "../components/ui/sidebar";
+import Link from "next/link";
 
 const menuItems = [
   {
@@ -85,7 +85,7 @@ const menuItems = [
     icon: Newspaper,
     available: true,
   },
-]
+];
 
 export function AppSidebar() {
   return (
@@ -95,7 +95,9 @@ export function AppSidebar() {
           <div className="flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Highland College</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                Highland College
+              </h2>
               <p className="text-sm text-gray-600">of Technology</p>
             </div>
           </div>
@@ -109,7 +111,9 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild={item.available}
-                      className={!item.available ? "opacity-50 cursor-not-allowed" : ""}
+                      className={
+                        !item.available ? "opacity-50 cursor-not-allowed" : ""
+                      }
                     >
                       {item.available ? (
                         <Link href={item.url}>
@@ -120,7 +124,9 @@ export function AppSidebar() {
                         <div className="flex items-center gap-2">
                           <item.icon />
                           <span>{item.title}</span>
-                          <span className="ml-auto text-xs text-gray-400">(Coming Soon)</span>
+                          <span className="ml-auto text-xs text-gray-400">
+                            (Coming Soon)
+                          </span>
                         </div>
                       )}
                     </SidebarMenuButton>
@@ -137,5 +143,5 @@ export function AppSidebar() {
         <SidebarTrigger />
       </div>
     </div>
-  )
+  );
 }

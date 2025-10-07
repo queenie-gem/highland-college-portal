@@ -1,0 +1,21 @@
+task:
+
+[done] handle authentication using supabase 
+
+Folders{
+  creating folders
+  deleting folders 
+  managing folders
+}
+Documemts{
+  creating document
+  document uploading
+  deleting document
+  document library
+  editing document
+}
+users{
+  tracking users
+  creating users
+  deleting users
+}
