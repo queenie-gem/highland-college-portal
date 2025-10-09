@@ -15,21 +15,17 @@ import {
   Upload,
   FileText,
   Users,
-  LogOut,
   Folder,
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
-import { toast } from "sonner";
 import { useUser } from "@/hooks/use-user";
 
 export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState("");
   const user = useUser();
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     if (!user) {
@@ -40,18 +36,7 @@ export default function AdminDashboard() {
     setAdminUser(user?.email!);
   }, [router, user]);
 
-  const handleLogout = async () => {
-    // Clear authentication state
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    localStorage.removeItem("adminAuthenticated");
-    localStorage.removeItem("adminUser");
-    toast.success("user logged out successfully");
-    router.push("/admin");
-  };
+  // Navbar moved to app/admin/layout.tsx
 
   const stats = [
     {
@@ -82,18 +67,39 @@ export default function AdminDashboard() {
 
   const quickActions = [
     {
-      title: "Create Folder",
-      description: "Organize documents by creating new folders",
-      icon: FolderPlus,
-      href: "/admin/folders/create",
-      color: "bg-blue-600 hover:bg-blue-700",
-    },
-    {
       title: "Upload Documents",
       description: "Add new documents to existing folders",
       icon: Upload,
       href: "/admin/documents/upload",
       color: "bg-green-600 hover:bg-green-700",
+    },
+    {
+      title: "Manage Lecturers",
+      description: "View and manage all lecturers",
+      icon: Users,
+      href: "/admin/lecturers",
+      color: "bg-blue-600 hover:bg-blue-700",
+    },
+    {
+      title: "Manage Faculties",
+      description: "View and manage all faculties",
+      icon: Users,
+      href: "/admin/faculties",
+      color: "bg-purple-600 hover:bg-purple-700",
+    },
+    {
+      title: "Manage Departments",
+      description: "View and manage all departments",
+      icon: LayoutDashboard,
+      href: "/admin/departments",
+      color: "bg-indigo-600 hover:bg-indigo-700",
+    },
+    {
+      title: "Manage Courses",
+      description: "View and manage all courses",
+      icon: TrendingUp,
+      href: "/admin/courses",
+      color: "bg-pink-600 hover:bg-pink-700",
     },
     {
       title: "Manage Folders",
@@ -117,37 +123,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="bg-red-100 p-2 rounded-lg">
-                <LayoutDashboard className="h-6 w-6 text-red-600" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  Admin Dashboard
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Highland College of Technology
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {adminUser}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
@@ -180,27 +155,28 @@ export default function AdminDashboard() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickActions.map((action, index) => (
-              <Card
-                key={index}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <CardHeader className="pb-3">
-                  <div
-                    className={`p-3 rounded-lg w-fit ${action.color} text-white`}
-                  >
-                    <action.icon className="h-6 w-6" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardTitle className="text-lg mb-2">{action.title}</CardTitle>
-                  <CardDescription className="mb-4">
-                    {action.description}
-                  </CardDescription>
-                  <Button asChild className={action.color}>
-                    <Link href={action.href}>Get Started</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <Link href={action.href}>
+                <Card
+                  key={index}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                >
+                  <CardHeader className="pb-3">
+                    <div
+                      className={`p-3 rounded-lg w-fit ${action.color} text-white`}
+                    >
+                      <action.icon className="h-6 w-6" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardTitle className="text-lg mb-2">
+                      {action.title}
+                    </CardTitle>
+                    <CardDescription className="mb-4">
+                      {action.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
