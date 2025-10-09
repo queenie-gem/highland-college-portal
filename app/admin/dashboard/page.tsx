@@ -17,10 +17,26 @@ import {
   Users,
   Folder,
   TrendingUp,
+  Plus,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
+import { createClient } from "@/utils/supabase/client";
+
+type Activity = {
+  id: string;
+  created_at: string;
+  title: string;
+  description: string | null;
+  metadata: {
+    action: "create" | "update" | "delete";
+    table: string;
+    recordId?: string;
+  };
+};
 
 export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState("");
@@ -35,6 +51,29 @@ export default function AdminDashboard() {
 
     setAdminUser(user?.email!);
   }, [router, user]);
+
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchActivities() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("activities")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(0, 9);
+        if (error) throw error;
+        setActivities(data ?? []);
+      } catch (err) {
+        console.error("Failed to load activities", err);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    }
+    if (adminUser) fetchActivities();
+  }, [adminUser]);
 
   // Navbar moved to app/admin/layout.tsx
 
@@ -115,6 +154,13 @@ export default function AdminDashboard() {
       href: "/admin/documents",
       color: "bg-orange-600 hover:bg-orange-700",
     },
+    {
+      title: "View Activities",
+      description: "See recent admin actions and logs",
+      icon: LayoutDashboard,
+      href: "/admin/activities",
+      color: "bg-slate-600 hover:bg-slate-700",
+    },
   ];
 
   if (!adminUser) {
@@ -185,53 +231,81 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest document management activities
-            </CardDescription>
+            <CardDescription>Latest admin activities</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="bg-green-100 p-2 rounded-full">
-                  <Upload className="h-4 w-4 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">
-                    Academic Calendar 2024.pdf uploaded
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    2 hours ago • Academic Resources folder
-                  </p>
-                </div>
-              </div>
+              {activitiesLoading ? (
+                <p className="text-sm text-gray-600">
+                  Loading recent activities…
+                </p>
+              ) : activities.length === 0 ? (
+                <p className="text-sm text-gray-600">No recent activities.</p>
+              ) : (
+                activities.map((item) => {
+                  const action = item.metadata?.action;
+                  const table = item.metadata?.table;
+                  const tableIconMap: Record<string, { icon: any; color: string }> = {
+                    folder: { icon: Folder, color: "bg-blue-100 text-blue-600" },
+                    lecturer: { icon: Users, color: "bg-indigo-100 text-indigo-600" },
+                    faculty: { icon: LayoutDashboard, color: "bg-teal-100 text-teal-600" },
+                    department: { icon: LayoutDashboard, color: "bg-indigo-100 text-indigo-600" },
+                    course: { icon: TrendingUp, color: "bg-pink-100 text-pink-600" },
+                  };
+                  const tableMeta = table ? tableIconMap[table] : undefined;
+                  let IconComp = tableMeta?.icon || Plus;
+                  let colorClasses = tableMeta?.color || "bg-blue-100 text-blue-600";
+                  if (!tableMeta) {
+                    if (action === "update") {
+                      IconComp = Pencil;
+                      colorClasses = "bg-purple-100 text-purple-600";
+                    } else if (action === "delete") {
+                      IconComp = Trash2;
+                      colorClasses = "bg-red-100 text-red-600";
+                    }
+                  }
 
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <FolderPlus className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">
-                    New folder "Student Handbooks" created
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    5 hours ago • Documents section
-                  </p>
-                </div>
-              </div>
+                  const timeAgo = (() => {
+                    const now = Date.now();
+                    const then = new Date(item.created_at).getTime();
+                    const diffMs = Math.max(0, now - then);
+                    const mins = Math.floor(diffMs / 60000);
+                    if (mins < 1) return "just now";
+                    if (mins < 60)
+                      return `${mins} minute${mins === 1 ? "" : "s"} ago`;
+                    const hours = Math.floor(mins / 60);
+                    if (hours < 24)
+                      return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+                    const days = Math.floor(hours / 24);
+                    return `${days} day${days === 1 ? "" : "s"} ago`;
+                  })();
 
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="bg-purple-100 p-2 rounded-full">
-                  <FileText className="h-4 w-4 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">
-                    Admission Requirements.pdf updated
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    1 day ago • Admissions folder
-                  </p>
-                </div>
-              </div>
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className={`${colorClasses} p-2 rounded-full`}>
+                        <IconComp className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{item.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {item.description}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {timeAgo} • {table}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div className="mt-4">
+              <Link href="/admin/activities">
+                <Button variant="link" className="p-0">View all activities</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

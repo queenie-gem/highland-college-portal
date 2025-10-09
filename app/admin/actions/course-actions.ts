@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import { logActivity } from "@/app/admin/actions/activity-actions";
 
 // Data fetchers
 export async function getCourses() {
@@ -28,6 +29,10 @@ export async function getCourseById(id: string) {
 // Create
 export async function createCourse(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const title = String(formData.get("title") ?? "").trim();
   const code = String(formData.get("code") ?? "").trim();
@@ -53,8 +58,18 @@ export async function createCourse(formData: FormData) {
   if (lecturer) payload.lecturer = lecturer;
   if (department) payload.department = department;
 
-  const { error } = await supabase.from("course").insert(payload);
+  const { data, error } = await supabase
+    .from("course")
+    .insert(payload)
+    .select("id")
+    .single();
   if (error) throw error;
+
+  await logActivity(
+    "Course created",
+    `${actor} created course "${title}"`,
+    { action: "create", table: "course", recordId: data?.id }
+  );
 
   revalidatePath("/admin/courses");
 }
@@ -62,6 +77,10 @@ export async function createCourse(formData: FormData) {
 // Update
 export async function updateCourse(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
@@ -88,14 +107,29 @@ export async function updateCourse(formData: FormData) {
   const { error } = await supabase.from("course").update(payload).eq("id", id);
   if (error) throw error;
 
+  await logActivity(
+    "Course updated",
+    `${actor} updated course "${title || id}"`,
+    { action: "update", table: "course", recordId: id }
+  );
+
   revalidatePath("/admin/courses");
 }
 
 // Delete
 export async function deleteCourse(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
   const id = String(formData.get("id") ?? "").trim();
   const { error } = await supabase.from("course").delete().eq("id", id);
   if (error) throw error;
+  await logActivity(
+    "Course deleted",
+    `${actor} deleted course ${id}`,
+    { action: "delete", table: "course", recordId: id }
+  );
   revalidatePath("/admin/courses");
 }

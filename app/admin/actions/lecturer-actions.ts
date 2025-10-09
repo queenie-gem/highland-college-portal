@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import { logActivity } from "@/app/admin/actions/activity-actions";
 
 // Data fetchers
 export async function getLecturers(fileds = "*") {
@@ -40,6 +41,10 @@ function parseList(value: FormDataEntryValue | null): string[] | null {
 // Create
 export async function createLecturer(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const name = String(formData.get("name") ?? "").trim();
   const specialization = parseList(formData.get("specialization"));
@@ -47,14 +52,28 @@ export async function createLecturer(formData: FormData) {
   const achievement = parseList(formData.get("achievement"));
   const education = parseList(formData.get("education"));
 
-  const { error } = await supabase.from("lecturer").insert({
+  const { data, error } = await supabase
+    .from("lecturer")
+    .insert({
     name: name || null,
     specialization,
     contact,
     achievement,
     education,
-  });
+  })
+    .select("id")
+    .single();
   if (error) throw error;
+
+  await logActivity(
+    "Lecturer created",
+    `${actor} created lecturer "${name || "Unnamed"}"`,
+    {
+      action: "create",
+      table: "lecturer",
+      recordId: data?.id,
+    }
+  );
 
   revalidatePath("/admin/lecturers");
 }
@@ -62,6 +81,10 @@ export async function createLecturer(formData: FormData) {
 // Update
 export async function updateLecturer(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
@@ -83,14 +106,34 @@ export async function updateLecturer(formData: FormData) {
 
   if (error) throw error;
 
+  await logActivity(
+    "Lecturer updated",
+    `${actor} updated lecturer "${name || id}"`,
+    {
+      action: "update",
+      table: "lecturer",
+      recordId: id,
+    }
+  );
+
   revalidatePath("/admin/lecturers");
 }
 
 // Delete
 export async function deleteLecturer(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
   const id = String(formData.get("id") ?? "");
   const { error } = await supabase.from("lecturer").delete().eq("id", id);
   if (error) throw error;
+
+  await logActivity(
+    "Lecturer deleted",
+    `${actor} deleted lecturer ${id}`,
+    { action: "delete", table: "lecturer", recordId: id }
+  );
   revalidatePath("/admin/lecturers");
 }

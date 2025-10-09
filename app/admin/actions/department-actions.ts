@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import { logActivity } from "@/app/admin/actions/activity-actions";
 
 // Data fetchers
 export async function getDepartments() {
@@ -28,6 +29,10 @@ export async function getDepartmentById(id: string) {
 // Create
 export async function createDepartment(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const name = String(formData.get("name") ?? "").trim();
   const faculty = String(formData.get("faculty") ?? "").trim();
@@ -42,8 +47,18 @@ export async function createDepartment(formData: FormData) {
   };
   if (faculty) payload.faculty = faculty;
 
-  const { error } = await supabase.from("department").insert(payload);
+  const { data, error } = await supabase
+    .from("department")
+    .insert(payload)
+    .select("id")
+    .single();
   if (error) throw error;
+
+  await logActivity(
+    "Department created",
+    `${actor} created department "${name}"`,
+    { action: "create", table: "department", recordId: data?.id }
+  );
 
   revalidatePath("/admin/departments");
 }
@@ -51,6 +66,10 @@ export async function createDepartment(formData: FormData) {
 // Update
 export async function updateDepartment(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
 
   const id = String(formData.get("id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -66,14 +85,29 @@ export async function updateDepartment(formData: FormData) {
   const { error } = await supabase.from("department").update(payload).eq("id", id);
   if (error) throw error;
 
+  await logActivity(
+    "Department updated",
+    `${actor} updated department "${name || id}"`,
+    { action: "update", table: "department", recordId: id }
+  );
+
   revalidatePath("/admin/departments");
 }
 
 // Delete
 export async function deleteDepartment(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actor = (user?.user_metadata as any)?.name || user?.email || "Unknown user";
   const id = String(formData.get("id") ?? "").trim();
   const { error } = await supabase.from("department").delete().eq("id", id);
   if (error) throw error;
+  await logActivity(
+    "Department deleted",
+    `${actor} deleted department ${id}`,
+    { action: "delete", table: "department", recordId: id }
+  );
   revalidatePath("/admin/departments");
 }
