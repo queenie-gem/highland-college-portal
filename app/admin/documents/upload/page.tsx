@@ -128,17 +128,19 @@ export default function UploadDocumentsPage() {
     formData.append("file", file);
 
     try {
-      const response = await fetch(
-        "https://highland-chatbot.onrender.com/api/v1/upload",
-        {
-          method: "POST",
-          headers: {
-            "x-api-key":
-              "b4c67848e88194eba8c16b3b75ba7c0f76229a0710c57faa78bdc3545f266beb0d19801248507bcf4975e118487411d936f3592dc4915ec482e7084be2b1778f",
-          },
-          body: formData,
-        }
+      const url = new URL(
+        "https://highland-chatbot.onrender.com/api/v1/upload"
       );
+      url.searchParams.append("folder", selectedFolder);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "x-api-key":
+            "b4c67848e88194eba8c16b3b75ba7c0f76229a0710c57faa78bdc3545f266beb0d19801248507bcf4975e118487411d936f3592dc4915ec482e7084be2b1778f",
+        },
+        body: formData,
+      });
 
       if (!response.ok) {
         throw new Error(`Upload failed: ${response.statusText}`);
