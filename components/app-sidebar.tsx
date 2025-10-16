@@ -61,28 +61,22 @@ const menuItems = [
     icon: Monitor,
     available: false,
   },
-  {
-    title: "Student Portal",
-    url: "/student-portal",
-    icon: LogIn,
-    available: true,
-  },
-  {
-    title: "Electronic Library Resources",
-    url: "/library-resources",
-    icon: Library,
-    available: true,
-  },
+  // {
+  //   title: "Student Portal",
+  //   url: "/student-portal",
+  //   icon: LogIn,
+  //   available: true,
+  // },
+  // {
+  //   title: "Electronic Library Resources",
+  //   url: "/library-resources",
+  //   icon: Library,
+  //   available: true,
+  // },
   {
     title: "Faculty",
     url: "/faculty",
     icon: Users,
-    available: true,
-  },
-  {
-    title: "Blog",
-    url: "/blog",
-    icon: Newspaper,
     available: true,
   },
 ];
@@ -122,8 +116,8 @@ export function AppSidebar() {
                         </Link>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <item.icon />
                           <span>{item.title}</span>
+                          <item.icon />
                           <span className="ml-auto text-xs text-gray-400">
                             (Coming Soon)
                           </span>

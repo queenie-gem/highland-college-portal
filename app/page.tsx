@@ -1,8 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   BookOpen,
   GraduationCap,
@@ -21,9 +27,9 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 const heroImages = [
   {
@@ -33,49 +39,57 @@ const heroImages = [
     subtitle: "State-of-the-art facilities for academic success",
   },
   {
-    src: "/images/hero-2.png",
+    src: "/images/imgi_12_student-support2.jpg",
     alt: "Students walking on campus",
     title: "Vibrant Campus Life",
     subtitle: "Join our thriving academic community",
   },
   {
-    src: "/images/hero-3.png",
+    src: "/images/WhatsApp Image 2025-03-25 at 08.14.47_3995b408.jpg",
     alt: "University lecture hall",
     title: "Expert Faculty",
     subtitle: "Learn from industry professionals and academics",
   },
   {
-    src: "/images/hero-4.png",
+    src: "/images/higland.jpg",
     alt: "Computer science lab",
     title: "Cutting-Edge Technology",
     subtitle: "Hands-on experience with latest technology",
   },
   {
-    src: "/images/hero-5.png",
+    src: "/images/imgi_15_koladebg.jpg",
     alt: "Graduation ceremony",
     title: "Your Success Story",
     subtitle: "Join our successful graduates making impact worldwide",
   },
-]
+  {
+    src: "/images/imgi_11_student-support1.jpg",
+    alt: "Graduation ceremony",
+    title: "Your Success Story",
+    subtitle: "Join our successful graduates making impact worldwide",
+  },
+];
 
 export default function HomePage() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length)
-    }, 5000) // Change slide every 5 seconds
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // Change slide every 5 seconds
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroImages.length)
-  }
+    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length)
-  }
+    setCurrentSlide(
+      (prev) => (prev - 1 + heroImages.length) % heroImages.length
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -85,7 +99,7 @@ export default function HomePage() {
         {heroImages.map((image, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={`absolute inset-0 transition-opacity duration-0 ${
               index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -103,15 +117,25 @@ export default function HomePage() {
         {/* Content */}
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6 text-white">
           <div className="mb-4">
-            <h2 className="text-lg md:text-xl font-medium text-red-100 mb-2">{heroImages[currentSlide].title}</h2>
-            <p className="text-sm md:text-base text-red-200">{heroImages[currentSlide].subtitle}</p>
+            <h2 className="text-lg md:text-xl font-medium text-red-100 mb-2">
+              {heroImages[currentSlide].title}
+            </h2>
+            <p className="text-sm md:text-base text-red-200">
+              {heroImages[currentSlide].subtitle}
+            </p>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Welcome to Highland College of Technology</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Welcome to Highland College of Technology
+          </h1>
           <p className="text-xl md:text-2xl mb-8 text-red-100">
             Empowering students with knowledge, innovation, and leadership.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600">
+            <Button
+              asChild
+              size="lg"
+              className="bg-orange-500 hover:bg-orange-600"
+            >
               <Link href="/prospective-students#admission">
                 Apply Now
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -194,7 +218,9 @@ export default function HomePage() {
       {/* Academic Resources Section */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Academic Resources</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+            Academic Resources
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Academic Calendar */}
@@ -226,7 +252,10 @@ export default function HomePage() {
                     <span className="font-medium">Nov 20 - Dec 15</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4 bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 bg-transparent"
+                >
                   View Full Calendar
                 </Button>
               </CardContent>
@@ -261,7 +290,10 @@ export default function HomePage() {
                     <span className="font-medium">₦5,000</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4 bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 bg-transparent"
+                >
                   Payment Options
                 </Button>
               </CardContent>
@@ -296,7 +328,10 @@ export default function HomePage() {
                     <span className="font-medium">6 ND Programs</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4 bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 bg-transparent"
+                >
                   Download PDF
                 </Button>
               </CardContent>
@@ -308,7 +343,9 @@ export default function HomePage() {
       {/* Section Previews */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Explore Highland College</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+            Explore Highland College
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* About */}
@@ -323,10 +360,14 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  Learn more about our mission, vision, values, and what sets Highland College apart as a hub of
-                  academic excellence.
+                  Learn more about our mission, vision, values, and what sets
+                  Highland College apart as a hub of academic excellence.
                 </CardDescription>
-                <Button asChild variant="outline" className="w-full bg-transparent">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
                   <Link href="/about">
                     Learn More
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -347,8 +388,9 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  Thinking of joining us? Explore our admission process, requirements, academic programs, and get access
-                  to the Admission Portal.
+                  Thinking of joining us? Explore our admission process,
+                  requirements, academic programs, and get access to the
+                  Admission Portal.
                 </CardDescription>
                 <Button asChild className="w-full bg-red-800 hover:bg-red-900">
                   <Link href="/prospective-students">
@@ -359,7 +401,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Student Portal */}
+            {/* Student Portal
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -371,18 +413,23 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  For current students — log in to access courses, grades, schedules, and personalized academic tools.
+                  For current students — log in to access courses, grades,
+                  schedules, and personalized academic tools.
                 </CardDescription>
-                <Button asChild variant="outline" className="w-full bg-transparent">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
                   <Link href="/student-portal">
                     Enter Portal
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
-            {/* Electronic Library Resources */}
+            {/* Electronic Library Resources
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -394,17 +441,22 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  Browse thousands of digital resources, including eBooks, journals, and research papers — available
-                  24/7 to all students.
+                  Browse thousands of digital resources, including eBooks,
+                  journals, and research papers — available 24/7 to all
+                  students.
                 </CardDescription>
-                <Button asChild variant="outline" className="w-full bg-transparent">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
                   <Link href="/library-resources">
                     Visit eLibrary
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Faculty */}
             <Card className="hover:shadow-lg transition-shadow">
@@ -418,10 +470,14 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  Meet the educators powering Highland College. Browse through departments and connect with experienced
-                  faculty members.
+                  Meet the educators powering Highland College. Browse through
+                  departments and connect with experienced faculty members.
                 </CardDescription>
-                <Button asChild variant="outline" className="w-full bg-transparent">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
                   <Link href="/faculty">
                     Meet Our Faculty
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -430,7 +486,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Blog */}
+            {/* Blog
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -442,17 +498,21 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-4">
-                  Stay informed with campus news, student stories, upcoming events, and featured articles from our
-                  academic community.
+                  Stay informed with campus news, student stories, upcoming
+                  events, and featured articles from our academic community.
                 </CardDescription>
-                <Button asChild variant="outline" className="w-full bg-transparent">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
                   <Link href="/blog">
                     Read Blog
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </section>
@@ -466,19 +526,34 @@ export default function HomePage() {
                 <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                   <BookOpen className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-bold">Highland College of Technology</span>
+                <span className="text-lg font-bold">
+                  Highland College of Technology
+                </span>
               </div>
               <p className="text-red-100 mb-4">
-                Empowering students with knowledge, innovation, and leadership since 2007.
+                Empowering students with knowledge, innovation, and leadership
+                since 2007.
               </p>
               <div className="flex space-x-4">
-                <Button variant="ghost" size="sm" className="text-red-100 hover:text-white hover:bg-red-800">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-100 hover:text-white hover:bg-red-800"
+                >
                   <Facebook className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="sm" className="text-red-100 hover:text-white hover:bg-red-800">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-100 hover:text-white hover:bg-red-800"
+                >
                   <Youtube className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="sm" className="text-red-100 hover:text-white hover:bg-red-800">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-100 hover:text-white hover:bg-red-800"
+                >
                   <Instagram className="h-5 w-5" />
                 </Button>
               </div>
@@ -493,12 +568,18 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/prospective-students" className="text-red-100 hover:text-white">
+                  <Link
+                    href="/prospective-students"
+                    className="text-red-100 hover:text-white"
+                  >
                     Apply
                   </Link>
                 </li>
                 <li>
-                  <Link href="/library-resources" className="text-red-100 hover:text-white">
+                  <Link
+                    href="/library-resources"
+                    className="text-red-100 hover:text-white"
+                  >
                     Library
                   </Link>
                 </li>
@@ -528,10 +609,13 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-red-800 mt-8 pt-8 text-center text-red-100">
-            <p>&copy; {new Date().getFullYear()} Highland College of Technology. All rights reserved.</p>
+            <p>
+              &copy; {new Date().getFullYear()} Highland College of Technology.
+              All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

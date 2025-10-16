@@ -58,30 +58,30 @@ const menuItems = [
     icon: Monitor,
     available: false,
   },
-  {
-    title: "Student Portal",
-    url: "/student-portal",
-    icon: LogIn,
-    available: true,
-  },
-  {
-    title: "Library",
-    url: "/library-resources",
-    icon: Library,
-    available: true,
-  },
+  // {
+  //   title: "Student Portal",
+  //   url: "/student-portal",
+  //   icon: LogIn,
+  //   available: true,
+  // },
+  // {
+  //   title: "Library",
+  //   url: "/library-resources",
+  //   icon: Library,
+  //   available: true,
+  // },
   {
     title: "Faculty",
     url: "/faculty",
     icon: Users,
     available: true,
   },
-  {
-    title: "Blog",
-    url: "/blog",
-    icon: Newspaper,
-    available: true,
-  },
+  // {
+  //   title: "Blog",
+  //   url: "/blog",
+  //   icon: Newspaper,
+  //   available: true,
+  // },
 ];
 
 export function Navbar() {
