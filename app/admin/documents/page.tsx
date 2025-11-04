@@ -1,11 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
   FileText,
   Search,
@@ -27,109 +32,150 @@ import {
   Calendar,
   ArrowLeft,
   Filter,
-} from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
-interface Document {
-  id: string
-  name: string
-  type: string
-  size: string
-  folder: string
-  uploadedBy: string
-  uploadedAt: string
-  downloads: number
+type DbFolder = { id: string; name: string | null };
+type DbFile = {
+  id: string;
+  name: string | null;
+  file_type: string | null;
+  size: number | null;
+  file_path: string;
+  url: string | null;
+  status: string;
+  created_at: string;
+  folder: DbFolder | null;
+};
+
+interface DocumentItem {
+  id: string;
+  name: string;
+  type: string;
+  sizeBytes: number;
+  folder: string;
+  createdAt: string;
+  url: string | null;
+  filePath: string;
+  status: string;
 }
 
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: "1",
-      name: "Academic Calendar 2024.pdf",
-      type: "PDF",
-      size: "2.4 MB",
-      folder: "Academic Resources",
-      uploadedBy: "Admin",
-      uploadedAt: "2024-01-20",
-      downloads: 45,
-    },
-    {
-      id: "2",
-      name: "Admission Requirements.pdf",
-      type: "PDF",
-      size: "1.8 MB",
-      folder: "Admission Documents",
-      uploadedBy: "Admin",
-      uploadedAt: "2024-01-18",
-      downloads: 123,
-    },
-    {
-      id: "3",
-      name: "Student Handbook 2024.pdf",
-      type: "PDF",
-      size: "5.2 MB",
-      folder: "Student Handbooks",
-      uploadedBy: "Admin",
-      uploadedAt: "2024-01-19",
-      downloads: 67,
-    },
-    {
-      id: "4",
-      name: "Course Catalog.pdf",
-      type: "PDF",
-      size: "3.1 MB",
-      folder: "Academic Resources",
-      uploadedBy: "Admin",
-      uploadedAt: "2024-01-17",
-      downloads: 89,
-    },
-    {
-      id: "5",
-      name: "Faculty Guidelines.docx",
-      type: "DOCX",
-      size: "890 KB",
-      folder: "Faculty Resources",
-      uploadedBy: "Admin",
-      uploadedAt: "2024-01-16",
-      downloads: 23,
-    },
-  ])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [documentToDelete, setDocumentToDelete] = useState<string | null>(null)
-  const router = useRouter()
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("adminAuthenticated")
+    const isAuthenticated = localStorage.getItem("adminAuthenticated");
     if (!isAuthenticated) {
-      router.push("/admin")
+      router.push("/admin");
+      return;
     }
-  }, [router])
+    const supabase = createClient();
+    async function load() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("file")
+          .select(
+            "id,name,file_type,size,file_path,url,status,created_at,folder:folder(id,name)"
+          )
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        const mapped: DocumentItem[] = (data as any as DbFile[]).map((f) => ({
+          id: f.id,
+          name: f.name ?? "Untitled",
+          type: (f.file_type ?? "FILE").toUpperCase(),
+          sizeBytes: Number(f.size ?? 0),
+          folder: f.folder?.name ?? "Uncategorized",
+          createdAt: f.created_at,
+          url: f.url ?? null,
+          filePath: f.file_path,
+          status: f.status,
+        }));
+        setDocuments(mapped);
+      } catch (e) {
+        console.error("Failed to load files", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [router]);
 
-  const filteredDocuments = documents.filter(
-    (doc) =>
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.folder.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.type.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredDocuments = documents.filter((doc) => {
+    const q = searchTerm.toLowerCase();
+    return (
+      doc.name.toLowerCase().includes(q) ||
+      doc.folder.toLowerCase().includes(q) ||
+      doc.type.toLowerCase().includes(q)
+    );
+  });
 
   const handleDeleteDocument = (documentId: string) => {
-    setDocumentToDelete(documentId)
-    setDeleteDialogOpen(true)
-  }
+    setDocumentToDelete(documentId);
+    setDeleteDialogOpen(true);
+  };
 
-  const confirmDelete = () => {
-    if (documentToDelete) {
-      setDocuments(documents.filter((doc) => doc.id !== documentToDelete))
-      setDeleteDialogOpen(false)
-      setDocumentToDelete(null)
+  const confirmDelete = async () => {
+    if (!documentToDelete) return;
+    const supabase = createClient();
+    try {
+      const target = documents.find((d) => d.id === documentToDelete);
+      if (!target) {
+        toast.error("File not found in the list");
+        return;
+      }
+      const filePath = target.filePath;
+      // Expect file_path in format "bucket/key..."; split bucket and path
+      const firstSlash = filePath.indexOf("/");
+      if (firstSlash <= 0) {
+        toast.error("Invalid storage path for file");
+        return;
+      }
+      const bucket = "knowledge";
+
+      // 1) Delete from storage first
+      const { error: storageError } = await supabase.storage
+        .from(bucket)
+        .remove([filePath]);
+      if (storageError) {
+        console.error("Storage delete failed", storageError);
+        toast.error("Could not delete file from storage");
+        return;
+      }
+
+      // 2) Only if storage deletion succeeded, delete DB reference
+      const { error: dbError } = await supabase
+        .from("file")
+        .delete()
+        .eq("id", documentToDelete);
+      if (dbError) {
+        console.error("DB delete failed", dbError);
+        toast.error("Storage deleted, but failed to delete database record");
+        return;
+      }
+
+      setDocuments((prev) => prev.filter((doc) => doc.id !== documentToDelete));
+      toast.success("File deleted successfully");
+    } catch (e) {
+      console.error("Failed to delete file", e);
+      toast.error("Failed to delete file");
+    } finally {
+      setDeleteDialogOpen(false);
+      setDocumentToDelete(null);
     }
-  }
+  };
 
   const getFileIcon = (type: string) => {
-    return <FileText className="h-5 w-5 text-red-600" />
-  }
+    return <FileText className="h-5 w-5 text-red-600" />;
+  };
 
   const getTypeColor = (type: string) => {
     const colors: { [key: string]: string } = {
@@ -137,9 +183,21 @@ export default function DocumentsPage() {
       DOCX: "bg-blue-100 text-blue-800",
       XLSX: "bg-green-100 text-green-800",
       PPTX: "bg-orange-100 text-orange-800",
+    };
+    return colors[type] || "bg-gray-100 text-gray-800";
+  };
+
+  const formatSize = (bytes: number) => {
+    if (!bytes || bytes <= 0) return "—";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let i = 0;
+    let n = bytes;
+    while (n >= 1024 && i < units.length - 1) {
+      n /= 1024;
+      i++;
     }
-    return colors[type] || "bg-gray-100 text-gray-800"
-  }
+    return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -158,8 +216,12 @@ export default function DocumentsPage() {
                 <FileText className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Document Library</h1>
-                <p className="text-sm text-gray-600">Manage all uploaded documents</p>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Document Library
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Manage all uploaded documents
+                </p>
               </div>
             </div>
 
@@ -196,67 +258,97 @@ export default function DocumentsPage() {
 
         {/* Documents List */}
         <div className="space-y-4">
-          {filteredDocuments.map((document) => (
-            <Card key={document.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gray-100 p-3 rounded-lg">{getFileIcon(document.type)}</div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{document.name}</h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                        <span>Folder: {document.folder}</span>
-                        <span>Size: {document.size}</span>
-                        <span>Downloads: {document.downloads}</span>
+          {loading && (
+            <div className="text-sm text-gray-600">Loading documents…</div>
+          )}
+          {!loading &&
+            filteredDocuments.map((document) => (
+              <Card
+                key={document.id}
+                className="hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gray-100 p-3 rounded-lg">
+                        {getFileIcon(document.type)}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {document.name}
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                          <span>Folder: {document.folder}</span>
+                          <span>Size: {formatSize(document.sizeBytes)}</span>
+                          <span>Status: {document.status}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-3">
-                    <Badge className={getTypeColor(document.type)}>{document.type}</Badge>
-                    <div className="text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(document.uploadedAt).toLocaleDateString()}
+                    <div className="flex items-center gap-3">
+                      <Badge className={getTypeColor(document.type)}>
+                        {document.type}
+                      </Badge>
+                      <div className="text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(document.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
-                    </div>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Preview
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteDocument(document.id)}>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (document.url)
+                                window.open(document.url, "_blank");
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Preview
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (document.url)
+                                window.open(document.url, "_blank");
+                            }}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={() => handleDeleteDocument(document.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
         </div>
 
-        {filteredDocuments.length === 0 && (
+        {!loading && filteredDocuments.length === 0 && (
           <div className="text-center py-12">
             <div className="bg-gray-100 p-4 rounded-full w-fit mx-auto mb-4">
               <FileText className="h-12 w-12 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents found</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No documents found
+            </h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm ? "No documents match your search criteria." : "Start by uploading your first document."}
+              {searchTerm
+                ? "No documents match your search criteria."
+                : "Start by uploading your first document."}
             </p>
             <Button asChild>
               <Link href="/admin/documents/upload">
@@ -274,17 +366,21 @@ export default function DocumentsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Document</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this document? This action cannot be undone.
+              Are you sure you want to delete this document? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete Document
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

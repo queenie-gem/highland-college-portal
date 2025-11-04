@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState("");
   const user = useUser();
   const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
     if (!user) {
@@ -77,30 +78,87 @@ export default function AdminDashboard() {
 
   // Navbar moved to app/admin/layout.tsx
 
+  const [docCount, setDocCount] = useState<number | null>(null);
+  const [folderCount, setFolderCount] = useState<number | null>(null);
+  const [storageBytes, setStorageBytes] = useState<number | null>(null);
+  const [statsLoading, setStatsLoading] = useState<boolean>(true);
+
+  const formatBytes = (bytes?: number | null) => {
+    if (!bytes || bytes <= 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB", "TB"]; 
+    let i = 0;
+    let n = bytes;
+    while (n >= 1024 && i < units.length - 1) {
+      n /= 1024;
+      i++;
+    }
+    const precision = n < 10 && i > 0 ? 1 : 0;
+    return `${n.toFixed(precision)} ${units[i]}`;
+  };
+
+  useEffect(() => {
+    async function loadStats() {
+      if (!adminUser) return;
+      setStatsLoading(true);
+      try {
+        // Counts using HEAD queries
+        const [{ count: filesCount, error: filesErr }, { count: foldersCount, error: foldersErr }] = await Promise.all([
+          supabase.from("file").select("id", { count: "exact", head: true }),
+          supabase.from("folder").select("id", { count: "exact", head: true }),
+        ]);
+        if (filesErr) throw filesErr;
+        if (foldersErr) throw foldersErr;
+        setDocCount(filesCount ?? 0);
+        setFolderCount(foldersCount ?? 0);
+
+        // Sum sizes in pages to avoid huge payloads
+        let total = 0;
+        const PAGE = 1000;
+        let offset = 0;
+        // If we don't know count, page until less than PAGE returned
+        while (true) {
+          const { data, error } = await supabase
+            .from("file")
+            .select("size")
+            .order("created_at", { ascending: false })
+            .range(offset, offset + PAGE - 1);
+          if (error) throw error;
+          const batch = (data ?? []) as { size: number | null }[];
+          for (const row of batch) total += Number(row.size ?? 0);
+          if (!batch.length || batch.length < PAGE) break;
+          offset += PAGE;
+        }
+        setStorageBytes(total);
+      } catch (err) {
+        console.error("Failed to load stats", err);
+        setDocCount(0);
+        setFolderCount(0);
+        setStorageBytes(0);
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+    loadStats();
+  }, [adminUser]);
+
   const stats = [
     {
       title: "Total Documents",
-      value: "1,247",
+      value: docCount === null ? "—" : docCount.toLocaleString(),
       icon: FileText,
       color: "bg-blue-100 text-blue-600",
     },
     {
       title: "Folders",
-      value: "23",
+      value: folderCount === null ? "—" : folderCount.toLocaleString(),
       icon: Folder,
       color: "bg-green-100 text-green-600",
     },
     {
       title: "Storage Used",
-      value: "2.4 GB",
+      value: storageBytes === null ? "—" : formatBytes(storageBytes),
       icon: TrendingUp,
       color: "bg-purple-100 text-purple-600",
-    },
-    {
-      title: "Active Users",
-      value: "156",
-      icon: Users,
-      color: "bg-orange-100 text-orange-600",
     },
   ];
 
@@ -172,7 +230,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, index) => (
             <Card key={index}>
               <CardContent className="p-6">

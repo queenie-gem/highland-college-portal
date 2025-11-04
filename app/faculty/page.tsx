@@ -1,92 +1,173 @@
+"use client"
+
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, Mail, Phone, MapPin, Award, Search, GraduationCap, Building2, Star } from "lucide-react"
+import { createClient } from "@/utils/supabase/client"
+
+type DepartmentRow = { id: string; name: string; hod: string | null; faculty: string | null }
+type LecturerRow = {
+  id: string
+  name: string | null
+  specialization: string[] | null
+  contact: string[] | null
+  achievement: string[] | null
+  education: string[] | null
+}
+type CourseRow = { id: string; title: string; lecturer: string | null; department: string | null }
 
 export default function FacultyPage() {
-  const departments = [
-    {
-      name: "Computer Science",
-      head: "Dr. Sarah Johnson",
-      faculty: 12,
-      description: "Leading research in AI, machine learning, and software engineering",
-    },
-    {
-      name: "Information Technology",
-      head: "Prof. Michael Chen",
-      faculty: 8,
-      description: "Specializing in cybersecurity, network administration, and IT management",
-    },
-    {
-      name: "Software Engineering",
-      head: "Dr. Emily Rodriguez",
-      faculty: 10,
-      description: "Focus on software development methodologies and project management",
-    },
-    {
-      name: "Data Science",
-      head: "Dr. James Wilson",
-      faculty: 6,
-      description: "Expertise in big data analytics, statistics, and business intelligence",
-    },
-  ]
+  const supabase = useMemo(() => createClient(), [])
 
-  const featuredFaculty = [
-    {
-      name: "Dr. Sarah Johnson",
-      title: "Professor & Department Head",
-      department: "Computer Science",
-      education: "Ph.D. Computer Science, MIT",
-      specialization: "Artificial Intelligence, Machine Learning",
-      experience: "15 years",
-      email: "s.johnson@highlandcollege.edu",
-      phone: "(555) 123-4567",
-      office: "CS Building, Room 301",
-      achievements: ["IEEE Fellow", "Best Teacher Award 2023", "Published 50+ papers"],
-      courses: ["Advanced AI", "Machine Learning", "Research Methods"],
-    },
-    {
-      name: "Prof. Michael Chen",
-      title: "Associate Professor",
-      department: "Information Technology",
-      education: "M.S. Information Systems, Stanford",
-      specialization: "Cybersecurity, Network Security",
-      experience: "12 years",
-      email: "m.chen@highlandcollege.edu",
-      phone: "(555) 123-4568",
-      office: "IT Building, Room 205",
-      achievements: ["CISSP Certified", "Industry Partnership Award", "Security Research Grant"],
-      courses: ["Network Security", "Ethical Hacking", "IT Management"],
-    },
-    {
-      name: "Dr. Emily Rodriguez",
-      title: "Assistant Professor",
-      department: "Software Engineering",
-      education: "Ph.D. Software Engineering, Carnegie Mellon",
-      specialization: "Agile Development, DevOps",
-      experience: "8 years",
-      email: "e.rodriguez@highlandcollege.edu",
-      phone: "(555) 123-4569",
-      office: "SE Building, Room 102",
-      achievements: ["Agile Certified", "Young Researcher Award", "Open Source Contributor"],
-      courses: ["Software Project Management", "Agile Methods", "DevOps Practices"],
-    },
-    {
-      name: "Dr. James Wilson",
-      title: "Professor",
-      department: "Data Science",
-      education: "Ph.D. Statistics, Harvard",
-      specialization: "Big Data Analytics, Statistical Modeling",
-      experience: "18 years",
-      email: "j.wilson@highlandcollege.edu",
-      phone: "(555) 123-4570",
-      office: "DS Building, Room 401",
-      achievements: ["Data Science Excellence Award", "Industry Consultant", "40+ Publications"],
-      courses: ["Advanced Statistics", "Big Data Analytics", "Business Intelligence"],
-    },
-  ]
+  const [departments, setDepartments] = useState<{
+    name: string
+    head: string
+    faculty: number
+    description: string
+  }[]>([])
+
+  const [featuredFaculty, setFeaturedFaculty] = useState<{
+    name: string
+    title: string
+    department: string
+    education: string
+    specialization: string
+    experience: string
+    email: string
+    phone: string
+    office: string
+    achievements: string[]
+    courses: string[]
+  }[]>([])
+
+  const [directoryLecturers, setDirectoryLecturers] = useState<{
+    name: string
+    title: string
+    department: string
+    email: string
+    office: string
+  }[]>([])
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [{ data: deptRows, error: deptErr }, { data: lecturerRows, error: lectErr }, { data: courseRows, error: courseErr }] = await Promise.all([
+          supabase.from("department").select("id,name,hod,faculty").order("name", { ascending: true }),
+          supabase.from("lecturer").select("id,name,specialization,contact,achievement,education").order("created_at", { ascending: false }),
+          supabase.from("course").select("id,title,lecturer,department").order("created_at", { ascending: false }),
+        ])
+        if (deptErr) throw deptErr
+        if (lectErr) throw lectErr
+        if (courseErr) throw courseErr
+
+        const lecturersById = new Map<string, LecturerRow>()
+        for (const l of (lecturerRows ?? []) as LecturerRow[]) lecturersById.set(l.id, l)
+
+        // Build department faculty counts using distinct lecturers that teach courses in the department
+        const deptFacultyCount = new Map<string, number>()
+        const deptNameById = new Map<string, string>()
+        for (const d of (deptRows ?? []) as DepartmentRow[]) {
+          deptNameById.set(d.id, d.name)
+          deptFacultyCount.set(d.id, 0)
+        }
+        const lecturerSetByDept = new Map<string, Set<string>>()
+        for (const c of (courseRows ?? []) as CourseRow[]) {
+          const deptId = c.department ?? undefined
+          const lectId = c.lecturer ?? undefined
+          if (!deptId || !lectId) continue
+          if (!lecturerSetByDept.has(deptId)) lecturerSetByDept.set(deptId, new Set<string>())
+          lecturerSetByDept.get(deptId)!.add(lectId)
+        }
+        for (const [deptId, set] of lecturerSetByDept.entries()) {
+          deptFacultyCount.set(deptId, set.size)
+        }
+
+        // Map departments to UI shape
+        const deptUI = ((deptRows ?? []) as DepartmentRow[]).map((d) => {
+          const hodName = d.hod ? lecturersById.get(d.hod)?.name ?? "—" : "—"
+          return {
+            name: d.name,
+            head: hodName || "—",
+            faculty: deptFacultyCount.get(d.id) ?? 0,
+            description: "Description not available.",
+          }
+        })
+        setDepartments(deptUI)
+
+        // Featured faculty: take latest 4 lecturers
+        const featured = ((lecturerRows ?? []) as LecturerRow[]).slice(0, 4).map((l) => {
+          // Determine department label: HOD dept or first course dept name
+          let deptLabel = "—"
+          for (const d of (deptRows ?? []) as DepartmentRow[]) {
+            if (d.hod === l.id) {
+              deptLabel = d.name
+              break
+            }
+          }
+          if (deptLabel === "—") {
+            const course = ((courseRows ?? []) as CourseRow[]).find((c) => c.lecturer === l.id && c.department)
+            if (course?.department) deptLabel = deptNameById.get(course.department) ?? "—"
+          }
+
+          const contacts = (l.contact ?? [])
+          const email = contacts.find((c) => c.toLowerCase().includes("@")) || ""
+          const phone = contacts.find((c) => c.toLowerCase().includes("phone"))?.split(":").pop()?.trim() || ""
+          const office = contacts.find((c) => c.toLowerCase().includes("office"))?.split(":").pop()?.trim() || ""
+
+          const courses = ((courseRows ?? []) as CourseRow[])
+            .filter((c) => c.lecturer === l.id)
+            .map((c) => c.title)
+            .slice(0, 3)
+
+          const isHod = ((deptRows ?? []) as DepartmentRow[]).some((d) => d.hod === l.id)
+          const title = isHod ? "Professor & Department Head" : "Lecturer"
+
+          return {
+            name: l.name ?? "Unnamed Lecturer",
+            title,
+            department: deptLabel,
+            education: (l.education ?? []).join(", ") || "",
+            specialization: (l.specialization ?? []).join(", ") || "",
+            experience: "",
+            email,
+            phone,
+            office,
+            achievements: l.achievement ?? [],
+            courses,
+          }
+        })
+        setFeaturedFaculty(featured)
+
+        // Directory: first 12 lecturers
+        const directory = ((lecturerRows ?? []) as LecturerRow[]).slice(0, 12).map((l) => {
+          let deptLabel = "—"
+          const course = ((courseRows ?? []) as CourseRow[]).find((c) => c.lecturer === l.id && c.department)
+          if (course?.department) deptLabel = deptNameById.get(course.department) ?? "—"
+          const contacts = (l.contact ?? [])
+          const email = contacts.find((c) => c.toLowerCase().includes("@")) || ""
+          const office = contacts.find((c) => c.toLowerCase().includes("office"))?.split(":").pop()?.trim() || ""
+          return {
+            name: l.name ?? "Unnamed Lecturer",
+            title: "Associate Professor",
+            department: deptLabel,
+            email,
+            office,
+          }
+        })
+        setDirectoryLecturers(directory)
+      } catch (err) {
+        console.error("Failed to load faculty page data", err)
+        setDepartments([])
+        setFeaturedFaculty([])
+        setDirectoryLecturers([])
+      }
+    }
+    loadData()
+  }, [supabase])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -308,8 +389,7 @@ export default function FacultyPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Sample faculty cards - in a real app, this would be populated from a database */}
-                {[...Array(12)].map((_, index) => (
+                {directoryLecturers.map((lec, index) => (
                   <Card key={index} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -317,20 +397,24 @@ export default function FacultyPage() {
                           <Users className="h-5 w-5 text-gray-600" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold">Dr. Faculty Member {index + 1}</h4>
-                          <p className="text-sm text-gray-600">Associate Professor</p>
+                          <h4 className="font-semibold">{lec.name}</h4>
+                          <p className="text-sm text-gray-600">{lec.title}</p>
                           <Badge variant="outline" className="text-xs mt-1">
-                            Computer Science
+                            {lec.department || "—"}
                           </Badge>
                           <div className="mt-2 space-y-1 text-xs text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Mail className="h-3 w-3" />
-                              faculty{index + 1}@highlandcollege.edu
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              Building A, Room {100 + index}
-                            </div>
+                            {lec.email && (
+                              <div className="flex items-center gap-1">
+                                <Mail className="h-3 w-3" />
+                                {lec.email}
+                              </div>
+                            )}
+                            {lec.office && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {lec.office}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
