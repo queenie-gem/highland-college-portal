@@ -10,6 +10,7 @@ import { Users, Mail, Phone, MapPin, Award, Search, GraduationCap, Building2, St
 import { createClient } from "@/utils/supabase/client"
 
 type DepartmentRow = { id: string; name: string; hod: string | null; faculty: string | null }
+type FacultyRow = { id: string; name: string }
 type LecturerRow = {
   id: string
   name: string | null
@@ -34,12 +35,10 @@ export default function FacultyPage() {
     name: string
     title: string
     department: string
-    education: string
-    specialization: string
+    education: string[]
+    specialization: string[]
     experience: string
-    email: string
-    phone: string
-    office: string
+    contact: string[]
     achievements: string[]
     courses: string[]
   }[]>([])
@@ -48,21 +47,32 @@ export default function FacultyPage() {
     name: string
     title: string
     department: string
-    email: string
-    office: string
+    faculty: string
+    contacts: string[]
   }[]>([])
+  const [stats, setStats] = useState<{ members: number; phdPercent: number }>({
+    members: 0,
+    phdPercent: 0,
+  })
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [{ data: deptRows, error: deptErr }, { data: lecturerRows, error: lectErr }, { data: courseRows, error: courseErr }] = await Promise.all([
+        const [
+          { data: deptRows, error: deptErr },
+          { data: lecturerRows, error: lectErr },
+          { data: courseRows, error: courseErr },
+          { data: facultyRows, error: facultyErr },
+        ] = await Promise.all([
           supabase.from("department").select("id,name,hod,faculty").order("name", { ascending: true }),
           supabase.from("lecturer").select("id,name,specialization,contact,achievement,education").order("created_at", { ascending: false }),
           supabase.from("course").select("id,title,lecturer,department").order("created_at", { ascending: false }),
+          supabase.from("faculty").select("id,name").order("name", { ascending: true }),
         ])
         if (deptErr) throw deptErr
         if (lectErr) throw lectErr
         if (courseErr) throw courseErr
+        if (facultyErr) throw facultyErr
 
         const lecturersById = new Map<string, LecturerRow>()
         for (const l of (lecturerRows ?? []) as LecturerRow[]) lecturersById.set(l.id, l)
@@ -70,9 +80,16 @@ export default function FacultyPage() {
         // Build department faculty counts using distinct lecturers that teach courses in the department
         const deptFacultyCount = new Map<string, number>()
         const deptNameById = new Map<string, string>()
+        const deptFacultyNameByDeptId = new Map<string, string>()
+        const facultyNameById = new Map<string, string>()
+        for (const f of (facultyRows ?? []) as FacultyRow[]) facultyNameById.set(f.id, f.name)
         for (const d of (deptRows ?? []) as DepartmentRow[]) {
           deptNameById.set(d.id, d.name)
           deptFacultyCount.set(d.id, 0)
+          if (d.faculty) {
+            const fname = facultyNameById.get(d.faculty) ?? "—"
+            deptFacultyNameByDeptId.set(d.id, fname)
+          }
         }
         const lecturerSetByDept = new Map<string, Set<string>>()
         for (const c of (courseRows ?? []) as CourseRow[]) {
@@ -113,11 +130,6 @@ export default function FacultyPage() {
             if (course?.department) deptLabel = deptNameById.get(course.department) ?? "—"
           }
 
-          const contacts = (l.contact ?? [])
-          const email = contacts.find((c) => c.toLowerCase().includes("@")) || ""
-          const phone = contacts.find((c) => c.toLowerCase().includes("phone"))?.split(":").pop()?.trim() || ""
-          const office = contacts.find((c) => c.toLowerCase().includes("office"))?.split(":").pop()?.trim() || ""
-
           const courses = ((courseRows ?? []) as CourseRow[])
             .filter((c) => c.lecturer === l.id)
             .map((c) => c.title)
@@ -130,12 +142,10 @@ export default function FacultyPage() {
             name: l.name ?? "Unnamed Lecturer",
             title,
             department: deptLabel,
-            education: (l.education ?? []).join(", ") || "",
-            specialization: (l.specialization ?? []).join(", ") || "",
+            education: l.education ?? [],
+            specialization: l.specialization ?? [],
             experience: "",
-            email,
-            phone,
-            office,
+            contact: l.contact ?? [],
             achievements: l.achievement ?? [],
             courses,
           }
@@ -143,22 +153,34 @@ export default function FacultyPage() {
         setFeaturedFaculty(featured)
 
         // Directory: first 12 lecturers
-        const directory = ((lecturerRows ?? []) as LecturerRow[]).slice(0, 12).map((l) => {
+        const lecturerList = ((lecturerRows ?? []) as LecturerRow[])
+        const directory = lecturerList.slice(0, 12).map((l) => {
           let deptLabel = "—"
+          let facultyLabel = "—"
           const course = ((courseRows ?? []) as CourseRow[]).find((c) => c.lecturer === l.id && c.department)
-          if (course?.department) deptLabel = deptNameById.get(course.department) ?? "—"
-          const contacts = (l.contact ?? [])
-          const email = contacts.find((c) => c.toLowerCase().includes("@")) || ""
-          const office = contacts.find((c) => c.toLowerCase().includes("office"))?.split(":").pop()?.trim() || ""
+          if (course?.department) {
+            deptLabel = deptNameById.get(course.department) ?? "—"
+            facultyLabel = deptFacultyNameByDeptId.get(course.department) ?? "—"
+          }
           return {
             name: l.name ?? "Unnamed Lecturer",
             title: "Associate Professor",
             department: deptLabel,
-            email,
-            office,
+            faculty: facultyLabel,
+            contacts: l.contact ?? [],
           }
         })
         setDirectoryLecturers(directory)
+
+        // Compute Faculty Stats (simplified)
+        const totalLecturers = lecturerList.length
+        const phdCount = lecturerList.reduce((acc, l) => {
+          const edu = l.education ?? []
+          const hasPhD = edu.some((e) => /ph\.?d|doctor|dphil/i.test((e ?? "") as string))
+          return acc + (hasPhD ? 1 : 0)
+        }, 0)
+        const phdPercent = totalLecturers ? Math.round((phdCount / totalLecturers) * 100) : 0
+        setStats({ members: totalLecturers, phdPercent })
       } catch (err) {
         console.error("Failed to load faculty page data", err)
         setDepartments([])
@@ -185,22 +207,14 @@ export default function FacultyPage() {
       {/* Faculty Stats */}
       <section className="py-12 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold text-red-600 mb-2">45+</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">{stats.members}</div>
               <div className="text-gray-600">Faculty Members</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">85%</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">{stats.phdPercent}%</div>
               <div className="text-gray-600">Hold Ph.D. Degrees</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">12:1</div>
-              <div className="text-gray-600">Student-Faculty Ratio</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
-              <div className="text-gray-600">Research Publications</div>
             </div>
           </div>
         </div>
@@ -244,52 +258,86 @@ export default function FacultyPage() {
                     <CardContent className="space-y-4">
                       <div>
                         <h4 className="font-semibold mb-2">Education & Experience</h4>
-                        <p className="text-gray-600 text-sm">{faculty.education}</p>
-                        <p className="text-gray-600 text-sm">{faculty.experience} of teaching experience</p>
+                        <div className="space-y-1">
+                          {faculty.education.length > 0 ? (
+                            faculty.education.map((item, i) => (
+                              <p key={i} className="text-gray-600 text-sm">{item}</p>
+                            ))
+                          ) : (
+                            <p className="text-gray-500 text-sm">No education info</p>
+                          )}
+                          {faculty.experience && (
+                            <p className="text-gray-600 text-sm">{faculty.experience} of teaching experience</p>
+                          )}
+                        </div>
                       </div>
 
                       <div>
                         <h4 className="font-semibold mb-2">Specialization</h4>
-                        <p className="text-gray-600 text-sm">{faculty.specialization}</p>
+                        <div className="space-y-1">
+                          {faculty.specialization.length > 0 ? (
+                            faculty.specialization.map((sp, i) => (
+                              <p key={i} className="text-gray-600 text-sm">{sp}</p>
+                            ))
+                          ) : (
+                            <p className="text-gray-500 text-sm">No specialization info</p>
+                          )}
+                        </div>
                       </div>
 
                       <div>
                         <h4 className="font-semibold mb-2">Contact Information</h4>
                         <div className="space-y-1 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4" />
-                            {faculty.email}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4" />
-                            {faculty.phone}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            {faculty.office}
-                          </div>
+                          {faculty.contact.length > 0 ? (
+                            faculty.contact.map((line, i) => {
+                              const lower = (line || "").toLowerCase()
+                              const isEmail = lower.includes("@") || lower.includes("email")
+                              const isPhone = lower.includes("phone") || /\b\+?\d[\d\s\-()]{5,}\b/.test(line)
+                              const isAddress = lower.includes("office") || lower.includes("room") || lower.includes("building") || lower.includes("address") || lower.includes("street")
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  {isEmail ? (
+                                    <Mail className="h-4 w-4" />
+                                  ) : isPhone ? (
+                                    <Phone className="h-4 w-4" />
+                                  ) : isAddress ? (
+                                    <MapPin className="h-4 w-4" />
+                                  ) : (
+                                    <Users className="h-4 w-4" />
+                                  )}
+                                  <span>{line}</span>
+                                </div>
+                              )
+                            })
+                          ) : (
+                            <p className="text-gray-500">No contact info</p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <h4 className="font-semibold mb-2">Achievements</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {faculty.achievements.map((achievement, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">
-                              {achievement}
-                            </Badge>
-                          ))}
+                        <div className="space-y-1 text-sm text-gray-700">
+                          {faculty.achievements.length > 0 ? (
+                            faculty.achievements.map((ach, i) => (
+                              <div key={i}>• {ach}</div>
+                            ))
+                          ) : (
+                            <p className="text-gray-500">No achievements listed</p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <h4 className="font-semibold mb-2">Courses Taught</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {faculty.courses.map((course, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">
-                              {course}
-                            </Badge>
-                          ))}
+                        <div className="space-y-1 text-sm text-gray-700">
+                          {faculty.courses.length > 0 ? (
+                            faculty.courses.map((course, i) => (
+                              <div key={i}>• {course}</div>
+                            ))
+                          ) : (
+                            <p className="text-gray-500">No courses listed</p>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -401,20 +449,29 @@ export default function FacultyPage() {
                           <p className="text-sm text-gray-600">{lec.title}</p>
                           <Badge variant="outline" className="text-xs mt-1">
                             {lec.department || "—"}
+                            {lec.faculty && lec.faculty !== "—" ? ` • ${lec.faculty}` : ""}
                           </Badge>
                           <div className="mt-2 space-y-1 text-xs text-gray-500">
-                            {lec.email && (
-                              <div className="flex items-center gap-1">
-                                <Mail className="h-3 w-3" />
-                                {lec.email}
-                              </div>
-                            )}
-                            {lec.office && (
-                              <div className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {lec.office}
-                              </div>
-                            )}
+                            {(lec.contacts || []).slice(0, 2).map((line, i) => {
+                              const lower = (line || "").toLowerCase()
+                              const isEmail = lower.includes("@") || lower.includes("email")
+                              const isPhone = lower.includes("phone") || /\b\+?\d[\d\s\-()]{5,}\b/.test(line)
+                              const isAddress = lower.includes("office") || lower.includes("room") || lower.includes("building") || lower.includes("address") || lower.includes("street")
+                              return (
+                                <div key={i} className="flex items-center gap-1">
+                                  {isEmail ? (
+                                    <Mail className="h-3 w-3" />
+                                  ) : isPhone ? (
+                                    <Phone className="h-3 w-3" />
+                                  ) : isAddress ? (
+                                    <MapPin className="h-3 w-3" />
+                                  ) : (
+                                    <Users className="h-3 w-3" />
+                                  )}
+                                  <span>{line}</span>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                       </div>

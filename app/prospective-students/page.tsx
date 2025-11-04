@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,56 +33,41 @@ import {
   ArrowRight,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+
+type DepartmentRow = { id: string; name: string };
+type Program = { name: string; duration: string; degree: string; description: string };
 
 export default function ProspectiveStudentsPage() {
   const [newApplicationOpen, setNewApplicationOpen] = useState(false);
-  const [returningApplicationOpen, setReturningApplicationOpen] =
-    useState(false);
+  const [returningApplicationOpen, setReturningApplicationOpen] = useState(false);
 
-  const programs = [
-    {
-      name: "Computer Science",
-      duration: "2 years",
-      degree: "National Diploma",
-      description:
-        "Comprehensive program covering software development, algorithms, and system design.",
-    },
-    {
-      name: "Information Technology",
-      duration: "2 years",
-      degree: "National Diploma",
-      description:
-        "Focus on IT infrastructure, cybersecurity, and enterprise systems.",
-    },
-    {
-      name: "Software Engineering",
-      duration: "2 years",
-      degree: "National Diploma",
-      description:
-        "Specialized program in software development methodologies and project management.",
-    },
-    {
-      name: "Data Science",
-      duration: "2 years",
-      degree: "National Diploma",
-      description:
-        "Program in data analytics, machine learning, and statistical modeling.",
-    },
-    {
-      name: "Cybersecurity",
-      duration: "2 years",
-      degree: "National Diploma",
-      description:
-        "Specialized program in information security and digital forensics.",
-    },
-    {
-      name: "Web Development",
-      duration: "2 years",
-      degree: "National Diploma",
-      description: "Program covering modern web technologies and frameworks.",
-    },
-  ];
+  const supabase = useMemo(() => createClient(), []);
+  const [programs, setPrograms] = useState<Program[]>([]);
+
+  useEffect(() => {
+    async function loadPrograms() {
+      try {
+        const { data: deptRows, error } = await supabase
+          .from("department")
+          .select("id,name")
+          .order("name", { ascending: true });
+        if (error) throw error;
+
+        const mapped: Program[] = (deptRows ?? []).map((d: DepartmentRow) => ({
+          name: d.name,
+          duration: "2 years",
+          degree: "National Diploma",
+          description: `Explore the ${d.name} program at Highland College.`,
+        }));
+        setPrograms(mapped);
+      } catch (e) {
+        console.error("Failed to load programs", e);
+        setPrograms([]);
+      }
+    }
+    loadPrograms();
+  }, [supabase]);
 
   const requirements = [
     "5 credits in your O'level or JAMB cut off mark of 160",
