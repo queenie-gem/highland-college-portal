@@ -110,7 +110,7 @@ export default function HomePage() {
               className="object-cover"
               priority={index === 0}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-red-900/80 to-red-700/80" />
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-red-800/80 to-red-100/80" /> */}
           </div>
         ))}
 

@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="bg-blue-900 text-white py-16">
+      <section className="bg-red-900 text-white py-16">
         <div className="max-w-6xl mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">About Highland College</h1>
           <p className="text-xl text-blue-100 max-w-3xl">
@@ -168,7 +168,7 @@ export default function AboutPage() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-blue-900 text-white">
+      <section className="py-16 bg-red-900 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Join Our Community?</h2>
           <p className="text-xl text-blue-100 mb-8">
