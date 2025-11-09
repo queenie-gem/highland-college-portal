@@ -77,7 +77,7 @@ export default function ProspectiveStudentsPage() {
     "WAEC/NECO results",
     "JAMB admission letter",
     "Completed school application form (would be given physically or electronically)",
-    "muat be proficient in English",
+    "Must be proficient in English",
   ];
 
   // Custom Modal Component

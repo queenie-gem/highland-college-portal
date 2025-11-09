@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import useScrollReveal from "@/hooks/useScrollReveal";
 
 const heroImages = [
   {
@@ -71,6 +73,8 @@ const heroImages = [
 ];
 
 export default function HomePage() {
+  useScrollReveal();
+
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -147,10 +151,10 @@ export default function HomePage() {
               variant="outline"
               className="text-white border-white hover:bg-white hover:text-red-900 bg-transparent"
             >
-              <Link href="/student-portal">
+              {/* <Link href="/student-portal">
                 Visit Student Portal
                 <LogIn className="ml-2 h-5 w-5" />
-              </Link>
+              </Link> */}
             </Button>
           </div>
         </div>
@@ -202,7 +206,7 @@ export default function HomePage() {
                 <BookOpen className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900">20+</h3>
-              <p className="text-gray-600">Academic Program (OND)</p>
+              <p className="text-gray-600">Academic Program</p>
             </div>
             <div className="flex flex-col items-center">
               <div className="bg-purple-100 p-4 rounded-full mb-4">
@@ -215,6 +219,70 @@ export default function HomePage() {
         </div>
       </section>
 
+    {/* Rector’s Message Section */}
+<section className="py-16 bg-gray-50">
+  <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+    {/* Rector Image */}
+    <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
+      <img
+        src="/images/IMG-20250324-WA0158.jpg"
+        alt="Rector of Highland College"
+        className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
+      />
+    </div>
+
+    {/* Rector Speech */}
+    <div
+      className="opacity-0 translate-x-10 transition-all duration-1000 ease-out"
+      data-animate="slide-in"
+    >
+      <h2 className="text-2xl font-bold text-gray-800">
+        Message from the Rector
+      </h2>
+      <p className="text-gray-800 leading-relaxed">
+        At Highland College of Technology, we believe in nurturing innovators,
+        empowering students, and fostering a learning environment that inspires
+        growth, excellence, and creativity. Our journey of over a decade has
+        been guided by vision, dedication, and a passion for impact.
+      </p>
+      <p className="text-gray-600 mt-2">— Engr. J. A. Olanrewaju, Rector</p>
+    </div>
+  </div>
+</section>
+
+{/* Chairman’s Message Section */}
+<section className="py-16 bg-white">
+  <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+    {/* Chairman Speech */}
+    <div
+      className="opacity-0 -translate-x-10 transition-all duration-1000 ease-out"
+      data-animate="slide-in"
+    >
+      <h2 className="text-3xl font-bold text-gray-800 mb-4">
+        Message from the Chairman
+      </h2>
+      <p className="text-gray-900 leading-relaxed">
+        Our vision is to continuously raise the standard of education through
+        technology and innovation. Highland College stands as a beacon of
+        quality learning, preparing students to thrive in the evolving global
+        landscape.
+      </p>
+      <p className="text-2xl font-semibold text-gray-800">— Dr. M. K. Adetunji, Chairman</p>
+    </div>
+
+    {/* Chairman Image */}
+    <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
+      <img
+        src="/images/IMG-20250324-WA0139.jpg"
+        alt="Chairman of Highland College"
+        className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
+      />
+    </div>
+  </div>
+</section>
+
+
+
       {/* Academic Resources Section */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
@@ -224,7 +292,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Academic Calendar */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="reveal reveal-up hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-red-100 p-2 rounded-lg">
@@ -262,7 +330,7 @@ export default function HomePage() {
             </Card>
 
             {/* Tuition Schedule */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="reveal reveal-up hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-green-100 p-2 rounded-lg">
@@ -300,7 +368,7 @@ export default function HomePage() {
             </Card>
 
             {/* Fact Sheet */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="reveal reveal-up hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-purple-100 p-2 rounded-lg">
@@ -340,7 +408,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section Previews */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
@@ -349,7 +416,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* About */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-red-100 p-2 rounded-lg">
@@ -377,9 +444,9 @@ export default function HomePage() {
             </Card>
 
             {/* Prospective Students */}
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="reveal reveal-left hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 transition-transform duration-200 hover:scale-105">
                   <div className="bg-green-100 p-2 rounded-lg">
                     <GraduationCap className="h-6 w-6 text-green-600" />
                   </div>
@@ -400,6 +467,37 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Faculty */}
+            <Card className="reveal reveal-right hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <CardTitle>Faculty</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  Meet the educators powering Highland College. Browse through
+                  departments and connect with experienced faculty members.
+                </CardDescription>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full bg-transparent"
+                >
+                  <Link href="/faculty">
+                    Meet Our Faculty
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+            {/* </div>
+  </div>
+</section> */}
 
             {/* Student Portal
             <Card className="hover:shadow-lg transition-shadow">
@@ -458,7 +556,7 @@ export default function HomePage() {
               </CardContent>
             </Card> */}
 
-            {/* Faculty */}
+            {/* Faculty
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -484,7 +582,7 @@ export default function HomePage() {
                   </Link>
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Blog
             <Card className="hover:shadow-lg transition-shadow">
