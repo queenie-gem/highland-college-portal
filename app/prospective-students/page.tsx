@@ -38,11 +38,17 @@ import {
 import { createClient } from "@/utils/supabase/client";
 
 type DepartmentRow = { id: string; name: string };
-type Program = { name: string; duration: string; degree: string; description: string };
+type Program = {
+  name: string;
+  duration: string;
+  degree: string;
+  description: string;
+};
 
 export default function ProspectiveStudentsPage() {
   const [newApplicationOpen, setNewApplicationOpen] = useState(false);
-  const [returningApplicationOpen, setReturningApplicationOpen] = useState(false);
+  const [returningApplicationOpen, setReturningApplicationOpen] =
+    useState(false);
 
   const supabase = useMemo(() => createClient(), []);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -141,39 +147,29 @@ export default function ProspectiveStudentsPage() {
         </div>
       </section>
 
-      {/* Quick Stats */}
-      <section className="py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">95%</div>
-              <div className="text-gray-600">Employment Rate</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">20+</div>
-              <div className="text-gray-600">Academic Programs</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">
-                15:1
-              </div>
-              <div className="text-gray-600">Student-Faculty Ratio</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Main Content */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
               <h2 className="text-2xl font-bold">Start Your Application</h2>
-              <p className="text-gray-600">Create an account or log in to continue</p>
+              <p className="text-gray-600">
+                Create an account or log in to continue
+              </p>
             </div>
             <div className="flex gap-3">
-              <a href="/apply/signup" className="inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">Create Account</a>
-              <a href="/apply/login" className="inline-flex items-center rounded-md border border-purple-600 px-4 py-2 text-purple-700 hover:bg-purple-50">Login</a>
+              <a
+                href="/apply/signup"
+                className="inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-white hover:bg-purple-700"
+              >
+                Create Account
+              </a>
+              <a
+                href="/apply/login"
+                className="inline-flex items-center rounded-md border border-purple-600 px-4 py-2 text-purple-700 hover:bg-purple-50"
+              >
+                Login
+              </a>
             </div>
           </div>
           <Tabs defaultValue="programs" className="w-full">
@@ -391,13 +387,21 @@ export default function ProspectiveStudentsPage() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button variant="outline" asChild>
-                      <a href="mailto:segun@highlandtech.edu.ng">📧 Email Admissions</a>
+                      <a href="mailto:segun@highlandtech.edu.ng">
+                        📧 Email Admissions
+                      </a>
                     </Button>
                     <Button variant="outline" asChild>
                       <a href="tel:+2347059628866">📞 Call (+234) 7059628866</a>
                     </Button>
                     <Button variant="outline" asChild>
-                      <a href="https://wa.me/2347059628866" target="_blank" rel="noopener noreferrer">💬 Live Chat</a>
+                      <a
+                        href="https://wa.me/2347059628866"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        💬 Live Chat
+                      </a>
                     </Button>
                   </div>
                 </div>
@@ -449,7 +453,9 @@ export default function ProspectiveStudentsPage() {
               </SelectTrigger>
               <SelectContent>
                 {programs.map((p) => (
-                  <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>
+                  <SelectItem key={p.name} value={p.name}>
+                    {p.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
