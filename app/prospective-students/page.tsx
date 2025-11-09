@@ -156,6 +156,16 @@ export default function ProspectiveStudentsPage() {
       {/* Main Content */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl font-bold">Start Your Application</h2>
+              <p className="text-gray-600">Create an account or log in to continue</p>
+            </div>
+            <div className="flex gap-3">
+              <a href="/apply/signup" className="inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">Create Account</a>
+              <a href="/apply/login" className="inline-flex items-center rounded-md border border-purple-600 px-4 py-2 text-purple-700 hover:bg-purple-50">Login</a>
+            </div>
+          </div>
           <Tabs defaultValue="programs" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="programs">Programs</TabsTrigger>

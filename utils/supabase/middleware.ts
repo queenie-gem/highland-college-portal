@@ -39,19 +39,40 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith("/admin/")) {
-    // no user, potentially respond by redirecting the user to the login page
+  const pathname = request.nextUrl.pathname;
+  const isAdminLoginPage = pathname === "/admin";
+  const isAdminProtectedRoute = pathname.startsWith("/admin/");
+
+  // Allow access to admin login page for unauthenticated users
+  if (isAdminProtectedRoute && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 
-  if (user && request.nextUrl.pathname === "/admin") {
-    // user is logged in, and they are trying to access an admin page
-    // redirect them to the dashboard
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/dashboard";
-    return NextResponse.redirect(url);
+  // If authenticated, gate admin routes by role in profiles
+  if (user && (isAdminProtectedRoute || isAdminLoginPage)) {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const isAdmin = profile?.role === "admin";
+
+    if (isAdminLoginPage && isAdmin) {
+      // Admin visiting /admin should go to dashboard
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/dashboard";
+      return NextResponse.redirect(url);
+    }
+
+    if ((isAdminProtectedRoute || isAdminLoginPage) && !isAdmin) {
+      // Non-admin authenticated users cannot access admin area
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
