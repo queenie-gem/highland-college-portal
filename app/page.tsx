@@ -219,69 +219,72 @@ export default function HomePage() {
         </div>
       </section>
 
-    {/* Rector’s Message Section */}
-<section className="py-16 bg-gray-50">
-  <div className="reveal reveal-right max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-    {/* Rector Image */}
-    <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
-      <img
-        src="/images/IMG-20250324-WA0158.jpg"
-        alt="Rector of Highland College"
-        className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
-      />
-    </div>
+      {/* Rector’s Message Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="reveal reveal-right max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+          {/* Rector Image */}
+          <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
+            <img
+              src="/images/IMG-20250324-WA0158.jpg"
+              alt="Rector of Highland College"
+              className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
+            />
+          </div>
 
-    {/* Rector Speech */}
-    <div
-      className="opacity-0 translate-x-10 transition-all duration-1000 ease-out"
-      data-animate="slide-in"
-    >
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        Message from the Rector
-      </h2>
-      <p className="text-gray-900 leading-relaxed">
-        At Highland College of Technology, we believe in nurturing innovators,
-        empowering students, and fostering a learning environment that inspires
-        growth, excellence, and creativity. Our journey of over a decade has
-        been guided by vision, dedication, and a passion for impact.
-      </p>
-      <p className="text-gray-600 mt-2">— Engr. J. A. Olanrewaju, Rector</p>
-    </div>
-  </div>
-</section>
+          {/* Rector Speech */}
+          <div
+            className="translate-x-10 transition-all duration-1000 ease-out"
+            data-animate="slide-in"
+          >
+            <h2 className="text-2xl font-bold  text-red-500  mb-4">
+              Message from the Rector
+            </h2>
+            <p className="text-gray-900 leading-relaxed">
+              At Highland College of Technology, we believe in nurturing
+              innovators, empowering students, and fostering a learning
+              environment that inspires growth, excellence, and creativity. Our
+              journey of over a decade has been guided by vision, dedication,
+              and a passion for impact.
+            </p>
+            <p className="text-gray-600 mt-2">
+              — Engr. J. A. Olanrewaju, Rector
+            </p>
+          </div>
+        </div>
+      </section>
 
-{/* Chairman’s Message Section */}
-<section className="py-16 bg-white">
-  <div className="reveal reveal-left max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-    {/* Chairman Speech */}
-    <div
-      className="opacity-0 -translate-x-10 transition-all duration-1000 ease-out"
-      data-animate="slide-in"
-    >
-      <h2 className="text-3xl font-bold text-red-100 mb-4">
-        Message from the Chairman
-      </h2>
-      <p className="text-3xl font-bold text-gray-900 mb-4">
-        Our vision is to continuously raise the standard of education through
-        technology and innovation. Highland College stands as a beacon of
-        quality learning, preparing students to thrive in the evolving global
-        landscape.
-      </p>
-      <p className="text-2xl font-semibold text-gray-900">— Dr. M. K. Adetunji, Chairman</p>
-    </div>
+      {/* Chairman’s Message Section */}
+      <section className="py-16 bg-white">
+        <div className="reveal reveal-left max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+          {/* Chairman Speech */}
+          <div
+            className="-translate-x-10 transition-all duration-1000 ease-out"
+            data-animate="slide-in"
+          >
+            <h2 className="text-3xl font-bold text-red-500 mb-4">
+              Message from the Chairman
+            </h2>
+            <p className="text-3xl font-bold text-gray-900 mb-4">
+              Our vision is to continuously raise the standard of education
+              through technology and innovation. Highland College stands as a
+              beacon of quality learning, preparing students to thrive in the
+              evolving global landscape.
+            </p>
+            <p className="text-2xl font-semibold text-gray-900">
+              — Dr. M. K. Adetunji, Chairman
+            </p>
+          </div>
 
-    {/* Chairman Image */}
-    <div className="flex flex-col md:flex-row items-center gap-6 bg-blue-100 p-6 rounded-2xl shadow">
-      <img
-        src="/images/IMG-20250324-WA0139.jpg"
-        alt="Chairman of Highland College"
-        className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
-      />
-    </div>
-  </div>
-</section>
-
-
+          {/* Chairman Image */}
+          <div className="flex flex-col md:flex-row items-center gap-6 bg-blue-100 p-6 rounded-2xl shadow">
+            <img
+              src="/images/IMG-20250324-WA0139.jpg"
+              alt="Chairman of Highland College"
+              className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Academic Resources Section */}
       <section className="py-16 bg-white">

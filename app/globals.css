@@ -84,17 +84,39 @@
   }
 }
 @layer utilities {
-  .bg-chart-1 { background-color: hsl(var(--chart-1)); }
-  .bg-chart-2 { background-color: hsl(var(--chart-2)); }
-  .bg-chart-3 { background-color: hsl(var(--chart-3)); }
-  .bg-chart-4 { background-color: hsl(var(--chart-4)); }
-  .bg-chart-5 { background-color: hsl(var(--chart-5)); }
-}@layer utilities {
-  .text-chart-1 { color: hsl(var(--chart-1)); }
-  .text-chart-2 { color: hsl(var(--chart-2)); }
-  .text-chart-3 { color: hsl(var(--chart-3)); }
-  .text-chart-4 { color: hsl(var(--chart-4)); }
-  .text-chart-5 { color: hsl(var(--chart-5)); }
+  .bg-chart-1 {
+    background-color: hsl(var(--chart-1));
+  }
+  .bg-chart-2 {
+    background-color: hsl(var(--chart-2));
+  }
+  .bg-chart-3 {
+    background-color: hsl(var(--chart-3));
+  }
+  .bg-chart-4 {
+    background-color: hsl(var(--chart-4));
+  }
+  .bg-chart-5 {
+    background-color: hsl(var(--chart-5));
+  }
+}
+
+@layer utilities {
+  .text-chart-1 {
+    color: hsl(var(--chart-1));
+  }
+  .text-chart-2 {
+    color: hsl(var(--chart-2));
+  }
+  .text-chart-3 {
+    color: hsl(var(--chart-3));
+  }
+  .text-chart-4 {
+    color: hsl(var(--chart-4));
+  }
+  .text-chart-5 {
+    color: hsl(var(--chart-5));
+  }
 }
 
 /* Base scroll reveal
@@ -121,10 +143,18 @@
   transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.reveal-up { transform: translateY(100px); }
-.reveal-down { transform: translateY(-50px); }
-.reveal-left { transform: translateX(-50px); }
-.reveal-right { transform: translateX(50px); }
+.reveal-up {
+  transform: translateY(100px);
+}
+.reveal-down {
+  transform: translateY(-50px);
+}
+.reveal-left {
+  transform: translateX(-50px);
+}
+.reveal-right {
+  transform: translateX(50px);
+}
 
 .reveal.active {
   opacity: 1;
