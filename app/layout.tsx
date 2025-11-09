@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+// @ts-ignore: missing type declarations for CSS side-effect import
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Chatbot } from "@/components/chatbot";

@@ -105,9 +105,9 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-            {/* Replace icon box with your logo */}
+            {/* Replace highland-college-portal*/}
             <Image
-              src="/images/hct-logo.png" // ✅ put logo inside `public/` folder
+              src="/images/logoHCT2-removebg-preview.png" // ✅ put logo inside `public/` folder
               alt="Highland College Logo"
               width={70}
               height={70}
