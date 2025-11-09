@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -44,8 +46,16 @@ export default function ProspectiveStudentsPage() {
 
   const supabase = useMemo(() => createClient(), []);
   const [programs, setPrograms] = useState<Program[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
+    // Require applicant login before accessing Prospective Students
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/apply/login");
+      }
+    });
+
     async function loadPrograms() {
       try {
         const { data: deptRows, error } = await supabase
@@ -380,9 +390,15 @@ export default function ProspectiveStudentsPage() {
                     application process.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button variant="outline">📧 Email Admissions</Button>
-                    <Button variant="outline">📞 Call (555) 123-4567</Button>
-                    <Button variant="outline">💬 Live Chat</Button>
+                    <Button variant="outline" asChild>
+                      <a href="mailto:segun@highlandtech.edu.ng">📧 Email Admissions</a>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <a href="tel:+2347059628866">📞 Call (+234) 7059628866</a>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <a href="https://wa.me/2347059628866" target="_blank" rel="noopener noreferrer">💬 Live Chat</a>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -410,6 +426,10 @@ export default function ProspectiveStudentsPage() {
             </div>
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="surname">Surname</Label>
+            <Input id="surname" placeholder="Enter surname" />
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="email">Email Address</Label>
             <Input id="email" type="email" placeholder="Enter email address" />
           </div>
@@ -428,24 +448,19 @@ export default function ProspectiveStudentsPage() {
                 <SelectValue placeholder="Select a program" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="computer-science">
-                  Computer Science
-                </SelectItem>
-                <SelectItem value="information-technology">
-                  Information Technology
-                </SelectItem>
-                <SelectItem value="software-engineering">
-                  Software Engineering
-                </SelectItem>
-                <SelectItem value="data-science">Data Science</SelectItem>
-                <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
-                <SelectItem value="web-development">Web Development</SelectItem>
+                {programs.map((p) => (
+                  <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="address">Home Address</Label>
-            <Input id="address" placeholder="Enter home address" />
+            <Textarea id="address" placeholder="Enter home address" />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="examResult">Upload WAEC/NECO/GCE Result</Label>
+            <Input id="examResult" type="file" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
           <div className="flex gap-2 mt-4">
             <Button
