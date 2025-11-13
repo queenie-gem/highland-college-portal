@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +33,9 @@ export default function ApplicantLoginPage() {
       if (error) throw error;
 
       // Optional: Verify applicant role and route appropriately
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         toast.error("Login failed");
         return;
@@ -41,7 +49,7 @@ export default function ApplicantLoginPage() {
 
       if (profile?.role !== "admin") {
         toast.success("Logged in as applicant");
-        router.push("/prospective-students");
+        router.push("/apply/dashboard");
       } else {
         // In case an admin uses this page, send them to admin
         router.push("/admin/dashboard");
@@ -59,7 +67,9 @@ export default function ApplicantLoginPage() {
         <Card>
           <CardHeader>
             <CardTitle>Applicant Login</CardTitle>
-            <CardDescription>Sign in to continue your application</CardDescription>
+            <CardDescription>
+              Sign in to continue your application
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -80,7 +90,9 @@ export default function ApplicantLoginPage() {
                   id="password"
                   type="password"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   placeholder="Enter your password"
                   required
                 />
@@ -91,8 +103,11 @@ export default function ApplicantLoginPage() {
             </form>
 
             <div className="mt-4 text-center text-sm text-gray-600">
-              New applicant? {" "}
-              <Link href="/apply/signup" className="text-purple-600 hover:text-purple-800">
+              New applicant?{" "}
+              <Link
+                href="/apply/signup"
+                className="text-purple-600 hover:text-purple-800"
+              >
                 Create an account
               </Link>
             </div>

@@ -42,11 +42,19 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAdminLoginPage = pathname === "/admin";
   const isAdminProtectedRoute = pathname.startsWith("/admin/");
+  const isApplicantAuthPage = pathname === "/apply/login" || pathname === "/apply/signup";
 
   // Allow access to admin login page for unauthenticated users
   if (isAdminProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
+    return NextResponse.redirect(url);
+  }
+
+  // If user is logged in, redirect away from applicant auth pages to applicant dashboard
+  if (user && isApplicantAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/apply/dashboard";
     return NextResponse.redirect(url);
   }
 

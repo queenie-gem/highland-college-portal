@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -20,6 +20,7 @@ import {
   Monitor,
   Menu,
 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 const menuItems = [
   {
@@ -87,6 +88,29 @@ const menuItems = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const supabase = useMemo(() => createClient(), []);
+  const [role, setRole] = useState<"admin" | "applicant" | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuthenticated(false);
+        setRole(null);
+        return;
+      }
+      setIsAuthenticated(true);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      const r = profile?.role === "admin" ? "admin" : "applicant";
+      setRole(r);
+    }
+    loadUser();
+  }, [supabase]);
 
   const isActive = (url: string) => {
     if (url === "/") {
@@ -98,6 +122,11 @@ export function Navbar() {
   if (pathname.startsWith("/admin")) {
     return null; // Don't render the navbar on admin pages
   }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -151,6 +180,16 @@ export function Navbar() {
                 </Link>
               );
             })}
+            {isAuthenticated && role && (
+              <Link href={role === "admin" ? "/admin/dashboard" : "/apply/dashboard"}>
+                <Button variant="outline" className="ml-2">
+                  {role === "admin" ? "Admin Dashboard" : "Applicant Dashboard"}
+                </Button>
+              </Link>
+            )}
+            {isAuthenticated && (
+              <Button variant="ghost" className="ml-2" onClick={handleLogout}>Logout</Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -215,6 +254,25 @@ export function Navbar() {
                       </Link>
                     );
                   })}
+                  {isAuthenticated && role && (
+                    <Link
+                      href={role === "admin" ? "/admin/dashboard" : "/apply/dashboard"}
+                      className="flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium text-gray-700 hover:text-red-800 hover:bg-gray-50"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <LogIn className="h-5 w-5" />
+                      <span>{role === "admin" ? "Admin Dashboard" : "Applicant Dashboard"}</span>
+                    </Link>
+                  )}
+                  {isAuthenticated && (
+                    <button
+                      className="flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium text-gray-700 hover:text-red-800 hover:bg-gray-50"
+                      onClick={async () => { await supabase.auth.signOut(); setIsOpen(false); window.location.href = "/"; }}
+                    >
+                      <LogIn className="h-5 w-5" />
+                      <span>Logout</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </SheetContent>
