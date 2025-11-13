@@ -36,6 +36,7 @@ import {
   X,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 type DepartmentRow = { id: string; name: string };
 type Program = {
@@ -46,22 +47,10 @@ type Program = {
 };
 
 export default function ProspectiveStudentsPage() {
-  const [newApplicationOpen, setNewApplicationOpen] = useState(false);
-  const [returningApplicationOpen, setReturningApplicationOpen] =
-    useState(false);
-
   const supabase = useMemo(() => createClient(), []);
   const [programs, setPrograms] = useState<Program[]>([]);
-  const router = useRouter();
 
   useEffect(() => {
-    // Require applicant login before accessing Prospective Students
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/apply/login");
-      }
-    });
-
     async function loadPrograms() {
       try {
         const { data: deptRows, error } = await supabase
@@ -156,20 +145,6 @@ export default function ProspectiveStudentsPage() {
               <p className="text-gray-600">
                 Create an account or log in to continue
               </p>
-            </div>
-            <div className="flex gap-3">
-              <a
-                href="/apply/signup"
-                className="inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-white hover:bg-purple-700"
-              >
-                Create Account
-              </a>
-              <a
-                href="/apply/login"
-                className="inline-flex items-center rounded-md border border-purple-600 px-4 py-2 text-purple-700 hover:bg-purple-50"
-              >
-                Login
-              </a>
             </div>
           </div>
           <Tabs defaultValue="programs" className="w-full">
@@ -343,14 +318,12 @@ export default function ProspectiveStudentsPage() {
                         First time applying to Highland College? Start your
                         application here.
                       </p>
-                      <Button
-                        className="w-full"
-                        size="lg"
-                        onClick={() => setNewApplicationOpen(true)}
-                      >
-                        Start New Application
-                        <ExternalLink className="ml-2 h-4 w-4" />
-                      </Button>
+                      <Link href="/apply/signup">
+                        <Button className="w-full" size="lg">
+                          Start New Application
+                          <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </Card>
 
@@ -366,15 +339,12 @@ export default function ProspectiveStudentsPage() {
                         Already have an account? Continue your application or
                         check status.
                       </p>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        size="lg"
-                        onClick={() => setReturningApplicationOpen(true)}
-                      >
-                        Continue Application
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <Link href="/apply/login">
+                        <Button variant="outline" className="w-full" size="lg">
+                          Continue Application
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </Card>
                 </div>
@@ -410,135 +380,6 @@ export default function ProspectiveStudentsPage() {
           </Tabs>
         </div>
       </section>
-
-      {/* New Student Application Modal */}
-      <Modal
-        isOpen={newApplicationOpen}
-        onClose={() => setNewApplicationOpen(false)}
-        title="New Student Application"
-        description="Please fill in your details to start your application process."
-      >
-        <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" placeholder="Enter first name" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" placeholder="Enter last name" />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="surname">Surname</Label>
-            <Input id="surname" placeholder="Enter surname" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" placeholder="Enter email address" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" placeholder="Enter phone number" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="jamb">JAMB Registration Number</Label>
-            <Input id="jamb" placeholder="Enter JAMB registration number" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="program">Preferred Program</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a program" />
-              </SelectTrigger>
-              <SelectContent>
-                {programs.map((p) => (
-                  <SelectItem key={p.name} value={p.name}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="address">Home Address</Label>
-            <Textarea id="address" placeholder="Enter home address" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="examResult">Upload WAEC/NECO/GCE Result</Label>
-            <Input id="examResult" type="file" accept=".pdf,.jpg,.jpeg,.png" />
-          </div>
-          <div className="flex gap-2 mt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setNewApplicationOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button className="flex-1">Submit Application</Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Returning Student Modal */}
-      <Modal
-        isOpen={returningApplicationOpen}
-        onClose={() => setReturningApplicationOpen(false)}
-        title="Returning Student Login"
-        description="Enter your details to access your application."
-      >
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="matricNumber">Matric Number</Label>
-            <Input id="matricNumber" placeholder="Enter your matric number" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="level">Level</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="nd1">ND1</SelectItem>
-                <SelectItem value="nd2">ND2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="department">Department</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="computer-science">
-                  Computer Science
-                </SelectItem>
-                <SelectItem value="information-technology">
-                  Information Technology
-                </SelectItem>
-                <SelectItem value="software-engineering">
-                  Software Engineering
-                </SelectItem>
-                <SelectItem value="data-science">Data Science</SelectItem>
-                <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
-                <SelectItem value="web-development">Web Development</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-2 mt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setReturningApplicationOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button className="flex-1">Access Application</Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
