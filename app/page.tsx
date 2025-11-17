@@ -225,7 +225,7 @@ export default function HomePage() {
           {/* Rector Image */}
           <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
             <img
-              src="/images/IMG-20250324-WA0158.jpg"
+              src="/images/rector.jpg"
               alt="Rector of Highland College"
               className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
             />
@@ -246,7 +246,7 @@ export default function HomePage() {
               journey of over a decade has been guided by vision, dedication,
               and a passion for impact.
             </p>
-            <p className="text-gray-600 mt-2">
+            <p className="text-2xl font-semibold text-gray-600">
               — Engr. J. A. Olanrewaju, Rector
             </p>
           </div>
@@ -264,7 +264,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-red-500 mb-4">
               Message from the Chairman
             </h2>
-            <p className="text-3xl font-bold text-gray-900 mb-4">
+            <p className=" text-gray-900 mb-4">
               Our vision is to continuously raise the standard of education
               through technology and innovation. Highland College stands as a
               beacon of quality learning, preparing students to thrive in the
@@ -278,7 +278,7 @@ export default function HomePage() {
           {/* Chairman Image */}
           <div className="flex flex-col md:flex-row items-center gap-6 bg-blue-100 p-6 rounded-2xl shadow">
             <img
-              src="/images/IMG-20250324-WA0139.jpg"
+              src="/images/chairman.jpg"
               alt="Chairman of Highland College"
               className="w-full h-auto object-cover transition-transform duration-700 ease-in-out hover:scale-105"
             />

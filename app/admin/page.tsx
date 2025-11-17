@@ -129,16 +129,6 @@ export default function AdminLoginPage() {
                 )}
               </Button>
             </form>
-
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-semibold text-blue-800 mb-2">
-                Demo Credentials
-              </h4>
-              <p className="text-blue-700 text-sm">
-                For demonstration purposes, you can use any username and
-                password to access the admin dashboard.
-              </p>
-            </div>
           </CardContent>
         </Card>
 

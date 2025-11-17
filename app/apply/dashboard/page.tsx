@@ -96,9 +96,9 @@ export default function ApplicantDashboardPage() {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Applicant Dashboard</h1>
           <div className="flex gap-2">
-            <Link href="/apply/application">
+            {/* <Link href="/apply/application">
               <Button>Edit Application</Button>
-            </Link>
+            </Link> */}
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>
         </div>
