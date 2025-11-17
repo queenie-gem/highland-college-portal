@@ -37,6 +37,7 @@ export async function createDepartment(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const faculty = String(formData.get("faculty") ?? "").trim();
   const hod = String(formData.get("hod") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
 
   if (!name) throw new Error("Department name is required");
   if (!hod) throw new Error("HOD is required"); // column is NOT NULL
@@ -46,6 +47,7 @@ export async function createDepartment(formData: FormData) {
     hod,
   };
   if (faculty) payload.faculty = faculty;
+  if (description) payload.description = description; else payload.description = null;
 
   const { data, error } = await supabase
     .from("department")
@@ -75,12 +77,14 @@ export async function updateDepartment(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const faculty = String(formData.get("faculty") ?? "").trim();
   const hod = String(formData.get("hod") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
 
   const payload: Record<string, any> = {
     name: name || null,
     hod: hod || null, // if client clears, we'll set null (DB will error if NOT NULL on update; but UI prevents empty)
   };
   if (faculty) payload.faculty = faculty; else payload.faculty = null;
+  payload.description = description || null;
 
   const { error } = await supabase.from("department").update(payload).eq("id", id);
   if (error) throw error;

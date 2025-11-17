@@ -43,6 +43,7 @@ type Department = {
   name: string | null;
   faculty?: string | null;
   hod: string;
+  description?: string | null;
 };
 
 export function AddDepartmentForm({
@@ -57,6 +58,7 @@ export function AddDepartmentForm({
   const [name, setName] = React.useState("");
   const [faculty, setFaculty] = React.useState<string>("");
   const [hod, setHod] = React.useState<string>("");
+  const [description, setDescription] = React.useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,11 +76,13 @@ export function AddDepartmentForm({
       fd.set("name", name.trim());
       fd.set("faculty", faculty === "none" ? "" : faculty);
       fd.set("hod", hod === "none" ? "" : hod);
+      fd.set("description", description.trim());
       await createDepartment(fd);
       toast.success("Department created successfully");
       setName("");
       setFaculty("");
       setHod("");
+      setDescription("");
       router.refresh();
     } catch (err: any) {
       toast.error(err?.message || "Failed to create department");
@@ -104,6 +108,16 @@ export function AddDepartmentForm({
               placeholder="e.g. Software Engineering"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Description</label>
+            <Textarea
+              name="description"
+              placeholder="Short summary of this department"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               disabled={submitting}
             />
           </div>
@@ -166,6 +180,7 @@ export function DepartmentCard({
   const [name, setName] = React.useState(dep.name ?? "");
   const [faculty, setFaculty] = React.useState<string>(dep.faculty ?? "");
   const [hod, setHod] = React.useState<string>(dep.hod ?? "");
+  const [description, setDescription] = React.useState<string>(dep.description ?? "");
 
   const lecturerNameById = React.useMemo(() => {
     const map = new Map<string, string>();
@@ -192,6 +207,7 @@ export function DepartmentCard({
       fd.set("name", name.trim());
       fd.set("faculty", faculty);
       fd.set("hod", hod);
+      fd.set("description", description.trim());
       await updateDepartment(fd);
       toast.success("Department updated");
       setEditing(false);
@@ -245,6 +261,9 @@ export function DepartmentCard({
         <CardDescription>
           Faculty: {faculty ? facultyNameById.get(faculty) ?? faculty : "None"}{" "}
           • HOD: {hod ? lecturerNameById.get(hod) ?? hod : "Not assigned"}
+          {dep.description ? (
+            <span className="block mt-1 text-gray-700">{dep.description}</span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -262,6 +281,14 @@ export function DepartmentCard({
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <Textarea
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
             <div>

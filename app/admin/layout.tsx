@@ -61,6 +61,18 @@ export default function AdminLayout({
               >
                 Dashboard
               </Link>
+              <Link
+                href="/admin/applications"
+                className="text-sm text-red-600 font-medium hover:text-red-800"
+              >
+                Applications
+              </Link>
+              <Link
+                href="/"
+                className="text-sm text-red-600 font-medium hover:text-red-800"
+              >
+                Website Home
+              </Link>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

@@ -38,7 +38,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 
-type DepartmentRow = { id: string; name: string };
+type DepartmentRow = { id: string; name: string; description: string };
 type Program = {
   name: string;
   duration: string;
@@ -55,7 +55,7 @@ export default function ProspectiveStudentsPage() {
       try {
         const { data: deptRows, error } = await supabase
           .from("department")
-          .select("id,name")
+          .select("id,name,description")
           .order("name", { ascending: true });
         if (error) throw error;
 
@@ -63,7 +63,9 @@ export default function ProspectiveStudentsPage() {
           name: d.name,
           duration: "2 years",
           degree: "National Diploma",
-          description: `Explore the ${d.name} program at Highland College.`,
+          description:
+            d.description ??
+            `Explore the ${d.name} program at Highland College.`,
         }));
         setPrograms(mapped);
       } catch (e) {

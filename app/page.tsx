@@ -293,9 +293,9 @@ export default function HomePage() {
             Academic Resources
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Academic Calendar */}
-            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50">
+            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50 snap-align-center">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-red-100 p-2 rounded-lg">
@@ -332,46 +332,8 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Tuition Schedule */}
-            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <DollarSign className="h-6 w-6 text-green-600" />
-                  </div>
-                  <CardTitle>Tuition Schedule</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span>ND1 (First Year)</span>
-                    <span className="font-medium">₦180,000</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>ND2 (Second Year)</span>
-                    <span className="font-medium">₦170,000</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Registration Fee</span>
-                    <span className="font-medium">₦15,000</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Late Payment Fee</span>
-                    <span className="font-medium">₦5,000</span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 bg-transparent"
-                >
-                  Payment Options
-                </Button>
-              </CardContent>
-            </Card>
-
             {/* Fact Sheet */}
-            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50">
+            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50 snap-align-center">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="bg-purple-100 p-2 rounded-lg">

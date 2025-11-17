@@ -164,6 +164,13 @@ export default function AdminDashboard() {
 
   const quickActions = [
     {
+      title: "View Applications",
+      description: "Review prospective student submissions",
+      icon: Users,
+      href: "/admin/applications",
+      color: "bg-red-600 hover:bg-red-700",
+    },
+    {
       title: "Upload Documents",
       description: "Add new documents to existing folders",
       icon: Upload,
