@@ -41,7 +41,7 @@ const heroImages = [
     subtitle: "State-of-the-art facilities for academic success",
   },
   {
-    src: "/images/imgi_12_student-support2.jpg",
+    src: "/images/matric23.8.jpg",
     alt: "Students walking on campus",
     title: "Vibrant Campus Life",
     subtitle: "Join our thriving academic community",
@@ -223,7 +223,7 @@ export default function HomePage() {
       <section className="py-16 bg-gray-50">
         <div className="reveal reveal-right max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           {/* Rector Image */}
-          <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-2xl shadow">
+          <div className="flex flex-col md:flex-row items-center gap-6 bg-red-500 p-6 rounded-2xl shadow">
             <img
               src="/images/rector.jpg"
               alt="Rector of Highland College"
@@ -240,14 +240,27 @@ export default function HomePage() {
               Message from the Rector
             </h2>
             <p className="text-gray-900 leading-relaxed">
-              At Highland College of Technology, we believe in nurturing
-              innovators, empowering students, and fostering a learning
-              environment that inspires growth, excellence, and creativity. Our
-              journey of over a decade has been guided by vision, dedication,
-              and a passion for impact.
+              Welcome to Highland College of Technology, a place where
+              innovation meets purpose and where students are empowered to build
+              the future. At Highland College, we pride ourselves on offering a
+              learning environment that blends technical excellence, hands-on
+              training, and real-world problem-solving. Our mission is to
+              nurture creative thinkers, skilled innovators, and confident
+              professionals who are prepared to excel in the global technology
+              landscape. Every program we offer is designed with industry
+              relevance in mind—ensuring that our students graduate with the
+              knowledge, character, and practical experience needed to succeed.
+              Whether you are beginning your academic journey or advancing your
+              skills, you will find a vibrant community of passionate learners,
+              experienced educators, and supportive staff ready to guide your
+              growth. I invite you to explore our campus, engage with our
+              resources, and take advantage of the opportunities available.
+              Together, let us shape a future defined by brilliance, resilience,
+              and technological advancement. Welcome to Highland College of
+              Technology — where your journey to greatness begins.
             </p>
-            <p className="text-2xl font-semibold text-gray-600">
-              — Engr. J. A. Olanrewaju, Rector
+            <p className="text-2xl font-semibold text-black-600">
+              — Rector, Highland College of Technology
             </p>
           </div>
         </div>
@@ -265,18 +278,34 @@ export default function HomePage() {
               Message from the Chairman
             </h2>
             <p className=" text-gray-900 mb-4">
-              Our vision is to continuously raise the standard of education
-              through technology and innovation. Highland College stands as a
-              beacon of quality learning, preparing students to thrive in the
-              evolving global landscape.
+              On behalf of the Governing Council, it is my pleasure to welcome
+              you to Highland College of Technology—a leading institution
+              committed to academic excellence, innovation, and the holistic
+              development of every student. Our vision at Highland College is
+              clear: to provide high-quality, industry-driven education that
+              equips learners with the skills, mindset, and confidence needed to
+              thrive in today’s rapidly evolving world. As an institution built
+              on integrity and purpose, we remain dedicated to ensuring that
+              every student receives the support, mentorship, and opportunities
+              required to excel. We believe strongly in the power of technology
+              to transform lives and societies. This is why we continuously
+              invest in modern facilities, qualified instructors, and
+              cutting-edge educational resources. Our goal is to create a
+              dynamic environment where students are inspired to innovate,
+              collaborate, and lead. As you begin your journey with us, we
+              encourage you to dream boldly, work diligently, and embrace every
+              learning experience. You are now part of a community that believes
+              in your potential and is committed to your success. Welcome to
+              Highland College of Technology — where leaders are shaped and
+              futures are built.
             </p>
-            <p className="text-2xl font-semibold text-gray-900">
-              — Dr. M. K. Adetunji, Chairman
+            <p className="text-2xl font-semibold text-black-900">
+              — Chairman, Governing Council Highland College of Technology
             </p>
           </div>
 
           {/* Chairman Image */}
-          <div className="flex flex-col md:flex-row items-center gap-6 bg-blue-100 p-6 rounded-2xl shadow">
+          <div className="flex flex-col md:flex-row items-center gap-6 bg-red-500 p-6 rounded-2xl shadow">
             <img
               src="/images/chairman.jpg"
               alt="Chairman of Highland College"
@@ -638,19 +667,19 @@ export default function HomePage() {
                     Apply
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     href="/library-resources"
                     className="text-red-100 hover:text-white"
                   >
                     Library
                   </Link>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <Link href="/blog" className="text-red-100 hover:text-white">
                     Blog
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
 
