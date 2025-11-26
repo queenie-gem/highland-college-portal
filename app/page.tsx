@@ -271,7 +271,7 @@ export default function HomePage() {
         <div className="reveal reveal-left max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           {/* Chairman Speech */}
           <div
-            className="-translate-x-10 transition-all duration-1000 ease-out"
+            className="-translate-x-10 transition-all duration-1000 ease-out md:ml-0 ml-10"
             data-animate="slide-in"
           >
             <h2 className="text-3xl font-bold text-red-500 mb-4">
@@ -315,92 +315,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Academic Resources Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-            Academic Resources
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Academic Calendar */}
-            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50 snap-align-center">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="bg-red-100 p-2 rounded-lg">
-                    <Calendar className="h-6 w-6 text-red-800" />
-                  </div>
-                  <CardTitle>Academic Calendar</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span>First Semester</span>
-                    <span className="font-medium">Sept - Dec 2024</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Second Semester</span>
-                    <span className="font-medium">Jan - May 2025</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Registration</span>
-                    <span className="font-medium">Aug 15 - Sept 5</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Examinations</span>
-                    <span className="font-medium">Nov 20 - Dec 15</span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 bg-transparent"
-                >
-                  View Full Calendar
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Fact Sheet */}
-            <Card className="reveal reveal-up transition-all duration-500 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 hover:bg-red-50 snap-align-center">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <FileText className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <CardTitle>Fact Sheet</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span>Founded</span>
-                    <span className="font-medium">2007</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Student Population</span>
-                    <span className="font-medium">2,000+</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Faculty Members</span>
-                    <span className="font-medium">45+</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Programs Offered</span>
-                    <span className="font-medium">6 ND Programs</span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 bg-transparent"
-                >
-                  Download PDF
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+   
 
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
