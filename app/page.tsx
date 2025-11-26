@@ -47,7 +47,7 @@ const heroImages = [
     subtitle: "Join our thriving academic community",
   },
   {
-    src: "/images/WhatsApp Image 2025-03-25 at 08.14.47_3995b408.jpg",
+    src: "/images/hd lab.jpg",
     alt: "University lecture hall",
     title: "Expert Faculty",
     subtitle: "Learn from industry professionals and academics",
@@ -59,13 +59,13 @@ const heroImages = [
     subtitle: "Hands-on experience with latest technology",
   },
   {
-    src: "/images/imgi_15_koladebg.jpg",
+    src: "/images/IMG_20250721_152806.jpg",
     alt: "Graduation ceremony",
     title: "Your Success Story",
     subtitle: "Join our successful graduates making impact worldwide",
   },
   {
-    src: "/images/imgi_11_student-support1.jpg",
+    src: "/images/IMG_20250721_152742.jpg",
     alt: "Graduation ceremony",
     title: "Your Success Story",
     subtitle: "Join our successful graduates making impact worldwide",
