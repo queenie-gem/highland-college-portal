@@ -260,12 +260,11 @@ export default function HomePage() {
               Technology — where your journey to greatness begins.
             </p>
             <p className="text-2xl font-semibold text-black-600">
-              — Rector, Highland College of Technology
+              — Rector, Dr Catherine Olayinka Fatoki
             </p>
           </div>
         </div>
       </section>
-
       {/* Chairman’s Message Section */}
       <section className="py-16 bg-white">
         <div className="reveal reveal-left max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
