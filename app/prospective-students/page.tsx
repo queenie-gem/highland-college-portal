@@ -77,14 +77,20 @@ export default function ProspectiveStudentsPage() {
   }, [supabase]);
 
   const requirements = [
-    "5 credits in your O'level or JAMB cut off mark of 160",
+    "Minimum 5 credits in O’Level (WAEC/NECO/NABTEB) including English and Mathematic.",
+    "JAMB cut-off mark: 160.",
+    "Clear, recent passport-sized photograph.",
+    "CLocal Government Certificate of Origin.",
+    "Valid WAEC / NECO / NABTEB result.",
   ];
 
   const documents = [
-    "WAEC/NECO results",
-    "JAMB admission letter",
-    "Completed school application form (would be given physically or electronically)",
-    "Must be proficient in English",
+    "O’Level Results (WAEC/NECO/NABTEB) – minimum 5 credits including English & Mathematics",
+    "JAMB Admission Letter",
+    "Completed School Application Form (physical or electronic)",
+    "Evidence of Application Fee Payment",
+    "Proof of English proficiency (credit in English or equivalent)",
+    
   ];
 
   // Custom Modal Component
@@ -166,7 +172,7 @@ export default function ProspectiveStudentsPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {programs.map((program, index) => (
                   <Card
                     key={index}
@@ -238,6 +244,20 @@ export default function ProspectiveStudentsPage() {
                         <p className="text-gray-600">
                           Receive your admission decision and complete
                           enrollment if accepted.
+                        </p>
+                      </div>
+                    </div>
+
+                      <div className="flex items-start gap-4">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <Users className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          4. Orientation / Registration
+                        </h3>
+                        <p className="text-gray-600">
+                          Attend orientation and complete registration to begin your studies.
                         </p>
                       </div>
                     </div>
@@ -364,11 +384,11 @@ export default function ProspectiveStudentsPage() {
                       </a>
                     </Button>
                     <Button variant="outline" asChild>
-                      <a href="tel:+2347059628866">📞 Call (+234) 7059628866</a>
+                      <a href="tel:+2347059628866">📞 Call (+234) 7085142576</a>
                     </Button>
                     <Button variant="outline" asChild>
                       <a
-                        href="https://wa.me/2347059628866"
+                        href="https://wa.me/2347085142576"
                         target="_blank"
                         rel="noopener noreferrer"
                       >

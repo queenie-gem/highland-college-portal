@@ -88,20 +88,36 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Our Story</h2>
           <div className="space-y-4 text-gray-600">
             <p>
-              Founded in 2007, Highland College of Technology began as a small hub for technical education with a bold dream — 
-              to bridge the gap between classroom learning and real industry needs.
+             The vision of Highland College of Technology is to educate people who will become citizen-leaders for the 21st century. They will be informed risk-takers that value honesty and forthrightness, understand and practise teamwork, and possess the necessary skills to strategically position themselves and improve technical competence for a better Nigeria.
             </p>
             <p>
-              From just 50 pioneering students, we have grown into a thriving community of over 2,000 learners, powered by 
-              a shared passion for excellence.
+              Highland College of Technology is an accredited private polytechnic, licensed by the Federal Ministry of Education and accredited by the National Board for Technical Education (NBTE). Established in 2005, Highland College was founded with the mission to provide high-quality, industry-relevant education in technology and applied sciences.
             </p>
             <p>
-              Over the years, we have built a reputation for hands-on training, real-world project experience, leadership 
-              and entrepreneurship development, personalized academic support, and a curriculum shaped by both industry experts 
-              and seasoned academics.
+              Highland College of Technology provides a unique opportunity for all students to acquire relevant technical skills to enable them compete favourably in the technology-driven world.
             </p>
             <p>
-              Today, Highland College stands as a dynamic force in technology education, shaping future innovators ready to compete globally.
+              We offer the following National Diploma Courses:
+              <ul>
+                <li>Accountancy</li>
+                <li>Business Administration</li>
+                <li>Computer Science</li>
+                <li>Mass Communication</li>
+              </ul>
+            </p>
+            <p>
+              Our commitment to excellence is reflected in our state-of-the-art facilities, experienced faculty, and strong industry partnerships. We strive to create an environment that fosters innovation, critical thinking, and practical skills development.
+            </p>
+            <p>
+              Our values are:
+              <ul>
+                <ul>Building lifelong learners</ul>
+                <li>Using student work and data to identifyneeds, imorove instruction and generaloerformance</li>
+                <li>Professional development of teachers and administrators.</li>
+                <li>Identifying and replicating best practices for instructions.</li>
+                <li>Aligning all resources with the instructional focus, maintaining well equipped library and state of the art practice equipment.</li>
+                <li>Maintaining a close relationship with industries, experienced engineers and technologists.</li>
+              </ul>
             </p>
           </div>
         </div>

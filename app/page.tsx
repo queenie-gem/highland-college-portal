@@ -300,7 +300,7 @@ export default function HomePage() {
               futures are built.
             </p>
             <p className="text-2xl font-semibold text-black-900">
-              — Chairman, Governing Council Highland College of Technology
+              — Chairman, Eng. Segun Fatoki 
             </p>
           </div>
 
@@ -542,27 +542,33 @@ export default function HomePage() {
                 since 2007.
               </p>
               <div className="flex space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-100 hover:text-white hover:bg-red-800"
-                >
-                  <Facebook className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-100 hover:text-white hover:bg-red-800"
-                >
+                  <a href="https://www.facebook.com/HighlandCollegeofTechnology" target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-100 hover:text-white hover:bg-red-800"
+                    >
+                      <Facebook className="h-5 w-5" />
+                    </Button>
+                  </a>
+                  <a href="https://www.youtube.com/@highlandcollegeoftechnolog2181" target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-100 hover:text-white hover:bg-red-800"
+                    >
                   <Youtube className="h-5 w-5" />
                 </Button>
-                <Button
+                  </a>
+                  <a href="https://www.instagram.com/hctibadanng" target="_blank" rel="noopener noreferrer">
+                    <Button
                   variant="ghost"
                   size="sm"
                   className="text-red-100 hover:text-white hover:bg-red-800"
                 >
                   <Instagram className="h-5 w-5" />
                 </Button>
+                  </a>
               </div>
             </div>
 
